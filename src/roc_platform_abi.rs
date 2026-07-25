@@ -1185,6 +1185,62 @@ const _: () = assert!(core::mem::size_of::<AnonStruct69eee2ff6c448fed>() == 32, 
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::align_of::<AnonStruct69eee2ff6c448fed>() == 4, "AnonStruct69eee2ff6c448fed alignment mismatch");
 
+/// Element type for __AnonStruct_57e411f048803101
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct AnonStruct57e411f048803101 {
+    pub init: *mut c_void,
+    pub update: *mut c_void,
+    pub view: *mut c_void,
+}
+
+/// Element type for __AnonStruct_57e411f048803101
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct AnonStruct57e411f048803101 {
+    pub init: *mut c_void,
+    pub update: *mut c_void,
+    pub view: *mut c_void,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<AnonStruct57e411f048803101>() == 24, "AnonStruct57e411f048803101 size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<AnonStruct57e411f048803101>() == 8, "AnonStruct57e411f048803101 alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<AnonStruct57e411f048803101>() == 12, "AnonStruct57e411f048803101 size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<AnonStruct57e411f048803101>() == 4, "AnonStruct57e411f048803101 alignment mismatch");
+
+/// Element type for TerminalSettings
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct TerminalSettings {
+    pub width: u64,
+    pub height: u64,
+}
+
+/// Element type for TerminalSettings
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct TerminalSettings {
+    pub width: u64,
+    pub height: u64,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<TerminalSettings>() == 16, "TerminalSettings size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<TerminalSettings>() == 8, "TerminalSettings alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<TerminalSettings>() == 16, "TerminalSettings size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<TerminalSettings>() == 8, "TerminalSettings alignment mismatch");
+
 /// Tag discriminant for Try.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -4495,6 +4551,71 @@ const _: () = assert!(core::mem::align_of::<TryType204>() == 4, "TryType204 alig
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::offset_of!(TryType204, tag) == 4, "TryType204 tag offset mismatch");
 
+/// Tag discriminant for Event.
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EventTag {
+    None = 0,
+    Stdin = 1,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub union EventPayload {
+    pub none: [u8; 0],
+    pub stdin: core::mem::ManuallyDrop<RocStr>,
+}
+
+#[cfg(target_pointer_width = "32")]
+#[repr(align(4))]
+#[derive(Clone, Copy)]
+pub struct EventPayloadAlignment;
+
+/// Tag union: Event
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct Event {
+    pub _payload_alignment: [EventPayloadAlignment; 0],
+    pub payload: [u8; 12],
+    pub tag: EventTag,
+}
+
+/// Tag union: Event
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct Event {
+    pub payload: EventPayload,
+    pub tag: EventTag,
+}
+
+impl Event {
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_stdin(&self) -> RocStr {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const RocStr) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_stdin(&self) -> RocStr {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.stdin) }
+    }
+
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<Event>() == 32, "Event size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<Event>() == 8, "Event alignment mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::offset_of!(Event, tag) == 24, "Event tag offset mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<Event>() == 16, "Event size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<Event>() == 4, "Event alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::offset_of!(Event, tag) == 12, "Event tag offset mismatch");
+
 /// Return type record for Host.env_platform!
 /// Fields ordered by compiler-emitted ABI offsets.
 #[cfg(target_pointer_width = "32")]
@@ -7212,6 +7333,87 @@ impl TryType204 {
     }
 }
 
+impl AnonStruct57e411f048803101 {
+    /// Recursively decrement Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted field.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        let _ = value;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        let _ = value;
+        let _ = amount;
+    }
+}
+
+impl Event {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        let _ = roc_host;
+        match value.tag {
+            EventTag::None => {},
+            EventTag::Stdin => {
+                let payload = value.payload_stdin();
+                unsafe { payload.decref(roc_host); }
+            },
+        }
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        let _ = amount;
+        match value.tag {
+            EventTag::None => {},
+            EventTag::Stdin => {
+                let payload = value.payload_stdin();
+                unsafe { payload.incref(amount); }
+            },
+        }
+    }
+}
+
+impl TerminalSettings {
+    /// Recursively decrement Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted field.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        let _ = value;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        let _ = value;
+        let _ = amount;
+    }
+}
+
 
 // Runtime Symbols
 //
@@ -7610,5 +7812,14 @@ pub fn make_roc_host(env: *mut c_void) -> RocHost {
 unsafe extern "C" {
     /// Entrypoint: main_for_host!
     pub fn roc_main(arg0: RocList<OsStr>) -> i32;
+
+    /// Entrypoint: init_for_host
+    pub fn roc_init(arg0: RocList<RocStr>) -> RocBox;
+
+    /// Entrypoint: update_for_host
+    pub fn roc_update(arg0: RocBox, arg1: Event) -> RocBox;
+
+    /// Entrypoint: view_for_host
+    pub fn roc_view(arg0: TerminalSettings, arg1: RocBox) -> RocStr;
 
 }

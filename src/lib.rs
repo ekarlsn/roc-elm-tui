@@ -102,6 +102,10 @@ extern "C" {
     fn roc_main(args: RocList<OsStr>) -> i32;
 }
 
+extern "C" {
+    fn roc_init(args: RocList<RocStr>) -> *mut c_void;
+}
+
 static DEBUG_OR_EXPECT_CALLED: AtomicBool = AtomicBool::new(false);
 static mut ROC_HOST: *mut RocHost = core::ptr::null_mut();
 
@@ -2127,15 +2131,25 @@ pub fn rust_main(argc: i32, argv: *const *const c_char) -> i32 {
     let mut roc_host = make_roc_host(core::ptr::null_mut());
     set_roc_host(&mut roc_host);
 
-    let args_list = build_args_list(argc, argv, &roc_host);
-    let mut exit_code = unsafe { roc_main(args_list) };
+    // let args_list = build_args_list(argc, argv, &roc_host);
+    let model = unsafe { roc_init(RocList::<RocStr>::empty()) };
+    let terminal_settings = TerminalSettings {
+        width: 50,
+        height: 30,
+    };
+    let event: Event = Event {
+        payload: EventPayload { none: [] },
+        tag: EventTag::None,
+    };
+    let new_model = unsafe { roc_update(model, event) };
+    let s = unsafe { roc_view(terminal_settings, new_model) };
+    let ss = s.as_str();
 
-    if DEBUG_OR_EXPECT_CALLED.load(Ordering::Acquire) && exit_code == 0 {
-        exit_code = 1;
-    }
+    println!("{ss}");
 
-    set_roc_host(core::ptr::null_mut());
-    exit_code
+    // let mut exit_code = unsafe { roc_init(RocList::<RocStr>::empty()) };
+
+    2
 }
 
 #[cfg(test)]

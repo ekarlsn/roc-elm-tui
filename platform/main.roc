@@ -2,16 +2,26 @@
 ## SQLite, environment, random, and UTC effects.
 platform ""
 	requires {
-		main! : List([Utf8(Str), UnixBytes(List(U8)), WindowsU16s(List(U16))]) => Try({}, [Exit(I32), ..])
+		main! : List([Utf8(Str), UnixBytes(List(U8)), WindowsU16s(List(U16))]) => Try({}, [Exit(I32), ..]),
+        [Model : model] for application : {
+                init : List(Str) -> model,
+                update : model, Event -> model,
+                view : TerminalSettings, model -> Str
+            }
 	}
-	exposes [Cmd, Env, File, Http, IOErr, Locale, OsStr, Path, Random, Sleep, Sqlite, Stdin, Stdout, Stderr, Tcp, Tty, Url, Utc]
+	exposes [Cmd, Event, TerminalSettings, Env, File, Http, IOErr, Locale, OsStr, Path, Random, Sleep, Sqlite, Stdin, Stdout, Stderr, Tcp, Tty, Url, Utc]
 	packages {
 		# HTTP data types (Method, Request, Response) come from the shared
 		# roc-lang/http package so apps and other packages using it see the same
 		# nominal types. The platform supplies only the effectful `Http.send!`.
 		http: "https://github.com/roc-lang/http/releases/download/1.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
 	}
-	provides { "roc_main": main_for_host! }
+	provides {
+    	"roc_main": main_for_host!,
+        "roc_init": init_for_host,
+        "roc_update": update_for_host,
+        "roc_view": view_for_host,
+    }
 	hosted {
 		"hosted_cmd_host_exec_exit_code": Host.cmd_exec_exit_code!,
 		"hosted_cmd_host_exec_output": Host.cmd_exec_output!,
@@ -91,6 +101,8 @@ platform ""
 	}
 
 import Cmd
+import TerminalSettings
+import Event
 import Env
 import File
 import Host
@@ -110,6 +122,27 @@ import Tcp
 import Tty
 import Url
 import Utc
+
+init_for_host : List(Str) -> Box(Model)
+init_for_host = |args| {
+    init_fn = application.init
+    Box.box(init_fn(args))
+}
+
+update_for_host : Box(Model), Event -> Box(Model)
+update_for_host = |boxed_model, event| {
+    model = Box.unbox(boxed_model)
+    update_fn = application.update
+    Box.box(update_fn(model, event))
+}
+
+
+view_for_host : TerminalSettings, Box(Model) -> Str
+view_for_host = |settings, boxed_model| {
+    model = Box.unbox(boxed_model)
+    view_fn = application.view
+    view_fn(settings, model)
+}
 
 main_for_host! : List(OsStr.OsStr) => I32
 main_for_host! = |args|
