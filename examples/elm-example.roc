@@ -5,16 +5,12 @@ import pf.OsStr
 import pf.Stdout
 import pf.Event
 import pf.TerminalSettings
+import pf.Subscriptions
 
 Model : {
 	name : Str
 }
 
-application : {
-    init : List(Str) -> Model,
-    update : Model, Event -> Model,
-    view : TerminalSettings, Model -> Str
-}
 application = {
     init : init,
     update : update,
@@ -24,7 +20,10 @@ application = {
 init : List(Str) -> Model
 init = |_args| { name: "Test WattApp" }
 
-update = |_model, _event| { { name: "Updated" } }
+update : Model, Event -> { m: Model }
+update = |_model, _event| {
+    { m: { name: "Updated" } }
+}
 
 view : TerminalSettings, Model -> Str
 view = |_settings, model| { model.name }

@@ -99,10 +99,6 @@ pub(crate) fn roc_u16_list_from_slice(
 }
 
 extern "C" {
-    fn roc_main(args: RocList<OsStr>) -> i32;
-}
-
-extern "C" {
     fn roc_init(args: RocList<RocStr>) -> *mut c_void;
 }
 
@@ -2133,6 +2129,7 @@ pub fn rust_main(argc: i32, argv: *const *const c_char) -> i32 {
 
     // let args_list = build_args_list(argc, argv, &roc_host);
     let model = unsafe { roc_init(RocList::<RocStr>::empty()) };
+    println!("init done");
     let terminal_settings = TerminalSettings {
         width: 50,
         height: 30,
@@ -2141,11 +2138,13 @@ pub fn rust_main(argc: i32, argv: *const *const c_char) -> i32 {
         payload: EventPayload { none: [] },
         tag: EventTag::None,
     };
-    let new_model = unsafe { roc_update(model, event) };
+    let update_result = unsafe { roc_update(model, event) };
+    let new_model = update_result.m;
+    println!("Update done");
     let s = unsafe { roc_view(terminal_settings, new_model) };
     let ss = s.as_str();
 
-    println!("{ss}");
+    println!("view done: {ss}");
 
     // let mut exit_code = unsafe { roc_init(RocList::<RocStr>::empty()) };
 

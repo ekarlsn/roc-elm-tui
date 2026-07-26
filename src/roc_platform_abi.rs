@@ -1214,6 +1214,58 @@ const _: () = assert!(core::mem::size_of::<AnonStruct57e411f048803101>() == 12, 
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::align_of::<AnonStruct57e411f048803101>() == 4, "AnonStruct57e411f048803101 alignment mismatch");
 
+/// Element type for __AnonStruct_e4d42a94075d3060
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct AnonStructE4d42a94075d3060 {
+    pub m: RocBox,
+    pub sub: Subscriptions,
+}
+
+/// Element type for __AnonStruct_e4d42a94075d3060
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct AnonStructE4d42a94075d3060 {
+    pub m: RocBox,
+    pub sub: Subscriptions,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<AnonStructE4d42a94075d3060>() == 32, "AnonStructE4d42a94075d3060 size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<AnonStructE4d42a94075d3060>() == 8, "AnonStructE4d42a94075d3060 alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<AnonStructE4d42a94075d3060>() == 16, "AnonStructE4d42a94075d3060 size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<AnonStructE4d42a94075d3060>() == 4, "AnonStructE4d42a94075d3060 alignment mismatch");
+
+/// Element type for Subscriptions
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct Subscriptions {
+    pub stdin: RocStr,
+}
+
+/// Element type for Subscriptions
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct Subscriptions {
+    pub stdin: RocStr,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<Subscriptions>() == 24, "Subscriptions size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<Subscriptions>() == 8, "Subscriptions alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<Subscriptions>() == 12, "Subscriptions size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<Subscriptions>() == 4, "Subscriptions alignment mismatch");
+
 /// Element type for TerminalSettings
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
@@ -5279,6 +5331,7 @@ pub type HostTcpReadUpToResultTag = HostTcpReadExactlyResultTag;
 pub type MainForHostArg0 = OsStr;
 pub type MainForHostArg0Payload = OsStrPayload;
 pub type MainForHostArg0Tag = OsStrTag;
+pub type UpdateForHost = AnonStructE4d42a94075d3060;
 
 // Generated Refcount Helpers
 
@@ -7391,6 +7444,50 @@ impl Event {
     }
 }
 
+impl AnonStructE4d42a94075d3060 {
+    /// Recursively decrement Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted field.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        unsafe { decref_box(value.m as RocBox, roc_host); }
+        unsafe { value.sub.decref(roc_host); }
+    }
+
+    /// Increment Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        unsafe { incref_box(value.m as RocBox, amount); }
+        unsafe { value.sub.incref(amount); }
+    }
+}
+
+impl Subscriptions {
+    /// Recursively decrement Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted field.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        unsafe { value.stdin.decref(roc_host); }
+    }
+
+    /// Increment Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        unsafe { value.stdin.incref(amount); }
+    }
+}
+
 impl TerminalSettings {
     /// Recursively decrement Roc-owned fields.
     ///
@@ -7817,7 +7914,7 @@ unsafe extern "C" {
     pub fn roc_init(arg0: RocList<RocStr>) -> RocBox;
 
     /// Entrypoint: update_for_host
-    pub fn roc_update(arg0: RocBox, arg1: Event) -> RocBox;
+    pub fn roc_update(arg0: RocBox, arg1: Event) -> AnonStructE4d42a94075d3060;
 
     /// Entrypoint: view_for_host
     pub fn roc_view(arg0: TerminalSettings, arg1: RocBox) -> RocStr;

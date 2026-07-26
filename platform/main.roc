@@ -5,11 +5,11 @@ platform ""
 		main! : List([Utf8(Str), UnixBytes(List(U8)), WindowsU16s(List(U16))]) => Try({}, [Exit(I32), ..]),
         [Model : model] for application : {
                 init : List(Str) -> model,
-                update : model, Event -> model,
+                update : model, Event -> { m: model },
                 view : TerminalSettings, model -> Str
             }
 	}
-	exposes [Cmd, Event, TerminalSettings, Env, File, Http, IOErr, Locale, OsStr, Path, Random, Sleep, Sqlite, Stdin, Stdout, Stderr, Tcp, Tty, Url, Utc]
+	exposes [Cmd, Event, Subscriptions, TerminalSettings, Env, File, Http, IOErr, Locale, OsStr, Path, Random, Sleep, Sqlite, Stdin, Stdout, Stderr, Tcp, Tty, Url, Utc]
 	packages {
 		# HTTP data types (Method, Request, Response) come from the shared
 		# roc-lang/http package so apps and other packages using it see the same
@@ -103,6 +103,7 @@ platform ""
 import Cmd
 import TerminalSettings
 import Event
+import Subscriptions
 import Env
 import File
 import Host
@@ -129,11 +130,12 @@ init_for_host = |args| {
     Box.box(init_fn(args))
 }
 
-update_for_host : Box(Model), Event -> Box(Model)
+update_for_host : Box(Model), Event -> { m: Box(Model), sub: Subscriptions }
 update_for_host = |boxed_model, event| {
     model = Box.unbox(boxed_model)
     update_fn = application.update
-    Box.box(update_fn(model, event))
+    res = update_fn(model, event)
+    { m: Box.box(res.m), sub: Subscriptions.{ stdin: "Wacka" } }
 }
 
 
