@@ -3,25 +3,29 @@
 platform ""
 	requires {
 		main! : List([Utf8(Str), UnixBytes(List(U8)), WindowsU16s(List(U16))]) => Try({}, [Exit(I32), ..]),
-        [Model : model] for application : {
-                init : List(Str) -> model,
-                update : model, Event -> { m: model, sub: Subscriptions },
+        [Model : model, Event : event] for application : {
+                init : List(Str) -> { m: model, sub: Subscriptions(event) },
+                update : model, event -> { m: model, sub: Subscriptions(event) },
                 view : TerminalSettings, model -> Str
             }
 	}
-	exposes [Cmd, Event, Subscriptions, TerminalSettings, Env, File, Http, IOErr, Locale, OsStr, Path, Random, Sleep, Sqlite, Stdin, Stdout, Stderr, Tcp, Tty, Url, Utc]
+	exposes [Cmd, Subscriptions, TerminalSettings, Env, File, Http, IOErr, Locale, OsStr, Path, Random, Sleep, Sqlite, Stdin, Stdout, Stderr, Tcp, Tty, Url, Utc]
 	packages {
 		# HTTP data types (Method, Request, Response) come from the shared
 		# roc-lang/http package so apps and other packages using it see the same
 		# nominal types. The platform supplies only the effectful `Http.send!`.
 		http: "https://github.com/roc-lang/http/releases/download/1.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
 	}
+	# Rust calling Roc
 	provides {
     	"roc_main": main_for_host!,
         "roc_init": init_for_host,
         "roc_update": update_for_host,
         "roc_view": view_for_host,
+        # Helpers for making events
+        "str_to_event_invoker": str_to_event_invoker,
     }
+    # Roc calling rust
 	hosted {
 		"hosted_cmd_host_exec_exit_code": Host.cmd_exec_exit_code!,
 		"hosted_cmd_host_exec_output": Host.cmd_exec_output!,
@@ -102,7 +106,6 @@ platform ""
 
 import Cmd
 import TerminalSettings
-import Event
 import Subscriptions
 import Env
 import File
@@ -124,15 +127,18 @@ import Tty
 import Url
 import Utc
 
-init_for_host : List(Str) -> Box(Model)
+init_for_host : List(Str) -> { m: Box(Model), sub: Subscriptions }
 init_for_host = |args| {
     init_fn = application.init
-    Box.box(init_fn(args))
+    result = init_fn(args)
+    boxed_model = Box.box(result.m)
+    { m: boxed_model, sub: result.sub }
 }
 
-update_for_host : Box(Model), Event -> { m: Box(Model), sub: Subscriptions }
-update_for_host = |boxed_model, event| {
+update_for_host : Box(Model), Box(Event) -> { m: Box(Model), sub: Subscriptions }
+update_for_host = |boxed_model, boxed_event| {
     model = Box.unbox(boxed_model)
+    event = Box.unbox(boxed_event)
     update_fn = application.update
     res = update_fn(model, event)
     { m: Box.box(res.m), sub: res.sub }
@@ -144,6 +150,12 @@ view_for_host = |settings, boxed_model| {
     model = Box.unbox(boxed_model)
     view_fn = application.view
     view_fn(settings, model)
+}
+
+str_to_event_invoker : Box(Str -> Event), Str -> Box(Event)
+str_to_event_invoker = |boxed_fn, str| {
+    fn = Box.unbox(boxed_fn)
+    Box.box(fn(str))
 }
 
 main_for_host! : List(OsStr.OsStr) => I32

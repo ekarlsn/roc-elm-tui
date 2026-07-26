@@ -8,6 +8,7 @@ use std::ffi::CStr;
 use std::ffi::{c_char, c_void, OsStr as StdOsStr, OsString};
 use std::fs;
 use std::io::{self, BufRead, BufReader, Read, Write};
+use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
@@ -98,9 +99,9 @@ pub(crate) fn roc_u16_list_from_slice(
     unsafe { RocListWith::<u16, false>::from_slice(slice, roc_host) }
 }
 
-extern "C" {
-    fn roc_init(args: RocList<RocStr>) -> *mut c_void;
-}
+// extern "C" {
+//     fn roc_init(args: RocList<RocStr>) -> *mut c_void;
+// }
 
 static DEBUG_OR_EXPECT_CALLED: AtomicBool = AtomicBool::new(false);
 static mut ROC_HOST: *mut RocHost = core::ptr::null_mut();
@@ -2103,19 +2104,37 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
     set_roc_host(&mut roc_host);
 
     // let args_list = build_args_list(argc, argv, &roc_host);
-    let model = unsafe { roc_init(RocList::<RocStr>::empty()) };
+    let result = unsafe { roc_init(RocList::<RocStr>::empty()) };
     println!("init done");
+
+    let initial_model = result.m;
+    let subs = result.sub;
+    let stdin_sub = subs.stdin;
+
+    let stdin_text = RocStr::from_str("<Return>", &roc_host);
+
+    let event = match stdin_sub.tag {
+        TryType224Tag::Ok => {
+            println!("We have a stdin subscription");
+            let stdin_closure = unsafe { *stdin_sub.payload.ok };
+            println!("Extracted function pointer payload");
+            unsafe { str_to_event_invoker(stdin_closure, stdin_text) }
+        }
+        TryType224Tag::Err => {
+            println!("No subscriptions from init, nothing to do");
+            return 5;
+        }
+    };
+    println!("Converted it to an event");
+
+    let update_result = unsafe { roc_update(initial_model, event) };
+    let new_model = update_result.m;
+
+    println!("Called update");
     let terminal_settings = TerminalSettings {
         width: 50,
         height: 30,
     };
-    let event: Event = Event {
-        payload: EventPayload { none: [] },
-        tag: EventTag::None,
-    };
-    let update_result = unsafe { roc_update(model, event) };
-    let new_model = update_result.m;
-    println!("Update done");
     let s = unsafe { roc_view(terminal_settings, new_model) };
     let ss = s.as_str();
 

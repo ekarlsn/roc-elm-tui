@@ -1233,11 +1233,11 @@ pub struct AnonStructE4d42a94075d3060 {
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<AnonStructE4d42a94075d3060>() == 32, "AnonStructE4d42a94075d3060 size mismatch");
+const _: () = assert!(core::mem::size_of::<AnonStructE4d42a94075d3060>() == 24, "AnonStructE4d42a94075d3060 size mismatch");
 #[cfg(target_pointer_width = "64")]
 const _: () = assert!(core::mem::align_of::<AnonStructE4d42a94075d3060>() == 8, "AnonStructE4d42a94075d3060 alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<AnonStructE4d42a94075d3060>() == 16, "AnonStructE4d42a94075d3060 size mismatch");
+const _: () = assert!(core::mem::size_of::<AnonStructE4d42a94075d3060>() == 12, "AnonStructE4d42a94075d3060 size mismatch");
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::align_of::<AnonStructE4d42a94075d3060>() == 4, "AnonStructE4d42a94075d3060 alignment mismatch");
 
@@ -1246,7 +1246,7 @@ const _: () = assert!(core::mem::align_of::<AnonStructE4d42a94075d3060>() == 4, 
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Subscriptions {
-    pub stdin: RocStr,
+    pub stdin: TryType224,
 }
 
 /// Element type for Subscriptions
@@ -1254,15 +1254,15 @@ pub struct Subscriptions {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Subscriptions {
-    pub stdin: RocStr,
+    pub stdin: TryType224,
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<Subscriptions>() == 24, "Subscriptions size mismatch");
+const _: () = assert!(core::mem::size_of::<Subscriptions>() == 16, "Subscriptions size mismatch");
 #[cfg(target_pointer_width = "64")]
 const _: () = assert!(core::mem::align_of::<Subscriptions>() == 8, "Subscriptions alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<Subscriptions>() == 12, "Subscriptions size mismatch");
+const _: () = assert!(core::mem::size_of::<Subscriptions>() == 8, "Subscriptions size mismatch");
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::align_of::<Subscriptions>() == 4, "Subscriptions alignment mismatch");
 
@@ -4603,70 +4603,70 @@ const _: () = assert!(core::mem::align_of::<TryType204>() == 4, "TryType204 alig
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::offset_of!(TryType204, tag) == 4, "TryType204 tag offset mismatch");
 
-/// Tag discriminant for Event.
+/// Tag discriminant for Try.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum EventTag {
-    None = 0,
-    Stdin = 1,
+pub enum TryType224Tag {
+    Err = 0,
+    Ok = 1,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub union EventPayload {
-    pub none: [u8; 0],
-    pub stdin: core::mem::ManuallyDrop<RocStr>,
+pub union TryType224Payload {
+    pub err: [u8; 0],
+    pub ok: core::mem::ManuallyDrop<RocErasedCallable>,
 }
 
 #[cfg(target_pointer_width = "32")]
 #[repr(align(4))]
 #[derive(Clone, Copy)]
-pub struct EventPayloadAlignment;
+pub struct TryType224PayloadAlignment;
 
-/// Tag union: Event
+/// Tag union: Try
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct Event {
-    pub _payload_alignment: [EventPayloadAlignment; 0],
-    pub payload: [u8; 12],
-    pub tag: EventTag,
+pub struct TryType224 {
+    pub _payload_alignment: [TryType224PayloadAlignment; 0],
+    pub payload: [u8; 4],
+    pub tag: TryType224Tag,
 }
 
-/// Tag union: Event
+/// Tag union: Try
 #[cfg(not(target_pointer_width = "32"))]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct Event {
-    pub payload: EventPayload,
-    pub tag: EventTag,
+pub struct TryType224 {
+    pub payload: TryType224Payload,
+    pub tag: TryType224Tag,
 }
 
-impl Event {
+impl TryType224 {
     #[cfg(target_pointer_width = "32")]
-    pub fn payload_stdin(&self) -> RocStr {
-        unsafe { core::ptr::read(self.payload.as_ptr() as *const RocStr) }
+    pub fn payload_ok(&self) -> RocErasedCallable {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const RocErasedCallable) }
     }
 
     #[cfg(not(target_pointer_width = "32"))]
-    pub fn payload_stdin(&self) -> RocStr {
-        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.stdin) }
+    pub fn payload_ok(&self) -> RocErasedCallable {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.ok) }
     }
 
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<Event>() == 32, "Event size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType224>() == 16, "TryType224 size mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::align_of::<Event>() == 8, "Event alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType224>() == 8, "TryType224 alignment mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::offset_of!(Event, tag) == 24, "Event tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType224, tag) == 8, "TryType224 tag offset mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<Event>() == 16, "Event size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType224>() == 8, "TryType224 size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<Event>() == 4, "Event alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType224>() == 4, "TryType224 alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::offset_of!(Event, tag) == 12, "Event tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType224, tag) == 4, "TryType224 tag offset mismatch");
 
 /// Return type record for Host.env_platform!
 /// Fields ordered by compiler-emitted ABI offsets.
@@ -5331,6 +5331,10 @@ pub type HostTcpReadUpToResultTag = HostTcpReadExactlyResultTag;
 pub type MainForHostArg0 = OsStr;
 pub type MainForHostArg0Payload = OsStrPayload;
 pub type MainForHostArg0Tag = OsStrTag;
+pub type InitForHost = AnonStructE4d42a94075d3060;
+pub type SubscriptionsStdinResult = TryType224;
+pub type SubscriptionsStdinResultPayload = TryType224Payload;
+pub type SubscriptionsStdinResultTag = TryType224Tag;
 pub type UpdateForHost = AnonStructE4d42a94075d3060;
 
 // Generated Refcount Helpers
@@ -7409,41 +7413,6 @@ impl AnonStruct57e411f048803101 {
     }
 }
 
-impl Event {
-    /// Recursively decrement Roc-owned payloads.
-    ///
-    /// # Safety
-    /// `self` must own one live Roc reference for each refcounted payload.
-    pub unsafe fn decref(self, roc_host: &RocHost) {
-        let value = self;
-        let _ = roc_host;
-        match value.tag {
-            EventTag::None => {},
-            EventTag::Stdin => {
-                let payload = value.payload_stdin();
-                unsafe { payload.decref(roc_host); }
-            },
-        }
-    }
-
-    /// Increment Roc-owned payloads.
-    ///
-    /// # Safety
-    /// `self` must point at live Roc allocations. The retained references must
-    /// be balanced by later decrefs.
-    pub unsafe fn incref(self, amount: isize) {
-        let value = self;
-        let _ = amount;
-        match value.tag {
-            EventTag::None => {},
-            EventTag::Stdin => {
-                let payload = value.payload_stdin();
-                unsafe { payload.incref(amount); }
-            },
-        }
-    }
-}
-
 impl AnonStructE4d42a94075d3060 {
     /// Recursively decrement Roc-owned fields.
     ///
@@ -7485,6 +7454,41 @@ impl Subscriptions {
     pub unsafe fn incref(self, amount: isize) {
         let value = self;
         unsafe { value.stdin.incref(amount); }
+    }
+}
+
+impl TryType224 {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        let _ = roc_host;
+        match value.tag {
+            TryType224Tag::Err => {},
+            TryType224Tag::Ok => {
+                let payload = value.payload_ok();
+                unsafe { decref_erased_callable(payload, roc_host); }
+            },
+        }
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        let _ = amount;
+        match value.tag {
+            TryType224Tag::Err => {},
+            TryType224Tag::Ok => {
+                let payload = value.payload_ok();
+                unsafe { incref_erased_callable(payload, amount); }
+            },
+        }
     }
 }
 
@@ -7911,12 +7915,15 @@ unsafe extern "C" {
     pub fn roc_main(arg0: RocList<OsStr>) -> i32;
 
     /// Entrypoint: init_for_host
-    pub fn roc_init(arg0: RocList<RocStr>) -> RocBox;
+    pub fn roc_init(arg0: RocList<RocStr>) -> AnonStructE4d42a94075d3060;
 
     /// Entrypoint: update_for_host
-    pub fn roc_update(arg0: RocBox, arg1: Event) -> AnonStructE4d42a94075d3060;
+    pub fn roc_update(arg0: RocBox, arg1: RocBox) -> AnonStructE4d42a94075d3060;
 
     /// Entrypoint: view_for_host
     pub fn roc_view(arg0: TerminalSettings, arg1: RocBox) -> RocStr;
+
+    /// Entrypoint: str_to_event_invoker
+    pub fn str_to_event_invoker(arg0: RocErasedCallable, arg1: RocStr) -> RocBox;
 
 }
