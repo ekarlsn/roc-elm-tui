@@ -20,9 +20,10 @@ application = {
 init : List(Str) -> Model
 init = |_args| { name: "Test WattApp" }
 
-update : Model, Event -> { m: Model }
+update : Model, Event -> { m: Model, sub: Subscriptions }
 update = |_model, _event| {
-    { m: { name: "Updated" } }
+    subs = Subscriptions.{ stdin: "Hej" }
+    { m: { name: "Updated" }, sub: Subscriptions.{ stdin: "Updated sub" } }
 }
 
 view : TerminalSettings, Model -> Str

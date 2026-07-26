@@ -5,7 +5,7 @@ platform ""
 		main! : List([Utf8(Str), UnixBytes(List(U8)), WindowsU16s(List(U16))]) => Try({}, [Exit(I32), ..]),
         [Model : model] for application : {
                 init : List(Str) -> model,
-                update : model, Event -> { m: model },
+                update : model, Event -> { m: model, sub: Subscriptions },
                 view : TerminalSettings, model -> Str
             }
 	}

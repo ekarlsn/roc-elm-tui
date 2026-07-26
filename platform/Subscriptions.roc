@@ -1,3 +1,3 @@
 Subscriptions := {
-    stdin : Str
+    stdin : Str,
 }

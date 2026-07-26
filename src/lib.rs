@@ -2067,31 +2067,6 @@ pub extern "C" fn roc_crashed(bytes: *const u8, len: usize) {
     DefaultHandlers::roc_crashed(roc_host_ptr(), bytes, len);
 }
 
-#[cfg(unix)]
-fn build_args_list(argc: i32, argv: *const *const c_char, roc_host: &RocHost) -> RocList<OsStr> {
-    if argc <= 0 || argv.is_null() {
-        return RocList::empty();
-    }
-
-    let list = unsafe { RocList::<OsStr>::allocate(argc as usize, roc_host) };
-    for index in 0..argc as isize {
-        unsafe {
-            let arg_ptr = *argv.offset(index);
-            if arg_ptr.is_null() {
-                break;
-            }
-            let arg = CStr::from_ptr(arg_ptr).to_bytes();
-            list.elements.offset(index).write(OsStr {
-                payload: OsStrPayload {
-                    unix_bytes: ManuallyDrop::new(roc_u8_list_from_slice(arg, roc_host)),
-                },
-                tag: OsStrTag::UnixBytes,
-            });
-        }
-    }
-    list
-}
-
 #[cfg(windows)]
 fn build_args_list(_argc: i32, _argv: *const *const c_char, roc_host: &RocHost) -> RocList<OsStr> {
     use std::os::windows::ffi::OsStrExt;
@@ -2123,7 +2098,7 @@ pub extern "C" fn main(argc: i32, argv: *const *const c_char) -> i32 {
     rust_main(argc, argv)
 }
 
-pub fn rust_main(argc: i32, argv: *const *const c_char) -> i32 {
+pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
     let mut roc_host = make_roc_host(core::ptr::null_mut());
     set_roc_host(&mut roc_host);
 
