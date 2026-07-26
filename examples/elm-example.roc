@@ -22,7 +22,6 @@ init = |_args| { name: "Test WattApp" }
 
 update : Model, Event -> { m: Model, sub: Subscriptions }
 update = |_model, _event| {
-    subs = Subscriptions.{ stdin: "Hej" }
     { m: { name: "Updated" }, sub: Subscriptions.{ stdin: "Updated sub" } }
 }
 

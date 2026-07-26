@@ -135,7 +135,7 @@ update_for_host = |boxed_model, event| {
     model = Box.unbox(boxed_model)
     update_fn = application.update
     res = update_fn(model, event)
-    { m: Box.box(res.m), sub: Subscriptions.{ stdin: "Wacka" } }
+    { m: Box.box(res.m), sub: res.sub }
 }
 
 
