@@ -23,7 +23,8 @@ platform ""
         "roc_update": update_for_host,
         "roc_view": view_for_host,
         # Helpers for making events
-        "str_to_event_invoker": str_to_event_invoker,
+        "make_event_from_str": make_event_from_str,
+        "make_event_from_list_u8": make_event_from_list_u8,
     }
     # Roc calling rust
 	hosted {
@@ -152,10 +153,16 @@ view_for_host = |settings, boxed_model| {
     view_fn(settings, model)
 }
 
-str_to_event_invoker : Box(Str -> Event), Str -> Box(Event)
-str_to_event_invoker = |boxed_fn, str| {
+make_event_from_str : Box(Str -> Event), Str -> Box(Event)
+make_event_from_str = |boxed_fn, str| {
     fn = Box.unbox(boxed_fn)
     Box.box(fn(str))
+}
+
+make_event_from_list_u8 : Box(List(U8) -> Event), List(U8) -> Box(Event)
+make_event_from_list_u8 = |boxed_fn, list_u8| {
+    fn = Box.unbox(boxed_fn)
+    Box.box(fn(list_u8))
 }
 
 main_for_host! : List(OsStr.OsStr) => I32

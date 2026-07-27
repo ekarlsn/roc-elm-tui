@@ -7923,7 +7923,10 @@ unsafe extern "C" {
     /// Entrypoint: view_for_host
     pub fn roc_view(arg0: TerminalSettings, arg1: RocBox) -> RocStr;
 
-    /// Entrypoint: str_to_event_invoker
-    pub fn str_to_event_invoker(arg0: RocErasedCallable, arg1: RocStr) -> RocBox;
+    /// Entrypoint: make_event_from_str
+    pub fn make_event_from_str(arg0: RocErasedCallable, arg1: RocStr) -> RocBox;
+
+    /// Entrypoint: make_event_from_list_u8
+    pub fn make_event_from_list_u8(arg0: RocErasedCallable, arg1: RocListWith<u8, false>) -> RocBox;
 
 }

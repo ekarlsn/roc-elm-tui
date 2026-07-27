@@ -9,6 +9,8 @@ use std::ffi::{c_char, c_void, OsStr as StdOsStr, OsString};
 use std::fs;
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::ops::Deref;
+use std::os::fd::AsRawFd;
+
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
@@ -2103,6 +2105,8 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
     let mut roc_host = make_roc_host(core::ptr::null_mut());
     set_roc_host(&mut roc_host);
 
+    // Listen to stdin
+
     // let args_list = build_args_list(argc, argv, &roc_host);
     let result = unsafe { roc_init(RocList::<RocStr>::empty()) };
     println!("init done");
@@ -2113,21 +2117,36 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
 
     let stdin_text = RocStr::from_str("<Return>", &roc_host);
 
-    let event = match stdin_sub.tag {
+    let stdin_closure = match stdin_sub.tag {
         TryType224Tag::Ok => {
             println!("We have a stdin subscription");
-            let stdin_closure = unsafe { *stdin_sub.payload.ok };
-            println!("Extracted function pointer payload");
-            unsafe { str_to_event_invoker(stdin_closure, stdin_text) }
+            unsafe { *stdin_sub.payload.ok }
         }
         TryType224Tag::Err => {
             println!("No subscriptions from init, nothing to do");
             return 5;
         }
     };
-    println!("Converted it to an event");
+    println!("Extracted function pointer payload");
+    println!("Waiting for stdin...");
+    // let Ok(stdin_listen_result) = stdin_listen(&roc_host) else {
+    //     println!("stdin_listen failed");
+    //     return 15;
+    // };
+    let list_u8: RocListWith<u8, false> =
+        unsafe { RocListWith::<u8, false>::from_slice(&[72u8, 79u8], &roc_host) };
+    // unsafe { RocListWith::<u8, false>::empty() };
 
-    let update_result = unsafe { roc_update(initial_model, event) };
+    let roc_str = RocStr::from_str("Hi", &roc_host);
+
+    println!("Made a list of u8");
+
+    let event = unsafe { make_event_from_str(stdin_closure, roc_str) };
+    println!("Converted str to event");
+    let event_from_u8_list = unsafe { make_event_from_list_u8(stdin_closure, list_u8) };
+    println!("Converted list_u8 to event");
+
+    let update_result = unsafe { roc_update(initial_model, event_from_u8_list) };
     let new_model = update_result.m;
 
     println!("Called update");
@@ -2143,6 +2162,42 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
     // let mut exit_code = unsafe { roc_init(RocList::<RocStr>::empty()) };
 
     2
+}
+
+fn stdin_listen(roc_host: &RocHost) -> Result<RocList<u8>, ()> {
+    const BUF_SIZE: usize = 16_384;
+
+    let stdin = std::io::stdin();
+
+    // Get file descriptors for polling
+    let stdin_fd = stdin.as_raw_fd();
+
+    let mut fds = [libc::pollfd {
+        fd: stdin_fd,
+        events: libc::POLLIN,
+        revents: 0,
+    }];
+
+    // Poll both file descriptors
+    let result = unsafe { libc::poll(fds.as_mut_ptr(), 1, -1) };
+    if result < 0 {
+        return Err(());
+    }
+
+    // Check which fd is ready (prioritize stdin)
+    if fds[0].revents & libc::POLLIN != 0 {
+        let mut buffer: [u8; BUF_SIZE] = [0; BUF_SIZE];
+        match stdin.lock().read(&mut buffer) {
+            Ok(bytes_read) => {
+                let raw = &buffer[0..bytes_read];
+                let data = unsafe { RocList::from_slice(raw, roc_host) };
+                Ok(data)
+            }
+            Err(_io_err) => Err(()),
+        }
+    } else {
+        Err(())
+    }
 }
 
 #[cfg(test)]
