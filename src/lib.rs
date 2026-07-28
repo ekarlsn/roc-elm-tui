@@ -2118,11 +2118,11 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
     let stdin_text = RocStr::from_str("<Return>", &roc_host);
 
     let stdin_closure = match stdin_sub.tag {
-        TryType224Tag::Ok => {
+        SubscriptionsStdinResultTag::Ok => {
             println!("We have a stdin subscription");
             unsafe { *stdin_sub.payload.ok }
         }
-        TryType224Tag::Err => {
+        SubscriptionsStdinResultTag::Err => {
             println!("No subscriptions from init, nothing to do");
             return 5;
         }
@@ -2134,15 +2134,15 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
     //     return 15;
     // };
     let list_u8: RocListWith<u8, false> =
-        unsafe { RocListWith::<u8, false>::from_slice(&[72u8, 79u8], &roc_host) };
+        unsafe { RocListWith::<u8, false>::from_slice(&[72u8, 79u8, 65u8], &roc_host) };
     // unsafe { RocListWith::<u8, false>::empty() };
 
     let roc_str = RocStr::from_str("Hi", &roc_host);
 
     println!("Made a list of u8");
 
-    let event = unsafe { make_event_from_str(stdin_closure, roc_str) };
-    println!("Converted str to event");
+    // let event = unsafe { make_event_from_str(stdin_closure, roc_str) };
+    // println!("Converted str to event");
     let event_from_u8_list = unsafe { make_event_from_list_u8(stdin_closure, list_u8) };
     println!("Converted list_u8 to event");
 
@@ -2164,7 +2164,7 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
     2
 }
 
-fn stdin_listen(roc_host: &RocHost) -> Result<RocList<u8>, ()> {
+fn stdin_listen(roc_host: &RocHost) -> Result<RocListWith<u8, false>, ()> {
     const BUF_SIZE: usize = 16_384;
 
     let stdin = std::io::stdin();
@@ -2190,7 +2190,7 @@ fn stdin_listen(roc_host: &RocHost) -> Result<RocList<u8>, ()> {
         match stdin.lock().read(&mut buffer) {
             Ok(bytes_read) => {
                 let raw = &buffer[0..bytes_read];
-                let data = unsafe { RocList::from_slice(raw, roc_host) };
+                let data = unsafe { RocListWith::<u8, false>::from_slice(raw, roc_host) };
                 Ok(data)
             }
             Err(_io_err) => Err(()),

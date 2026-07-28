@@ -1214,39 +1214,41 @@ const _: () = assert!(core::mem::size_of::<AnonStruct57e411f048803101>() == 12, 
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::align_of::<AnonStruct57e411f048803101>() == 4, "AnonStruct57e411f048803101 alignment mismatch");
 
-/// Element type for __AnonStruct_e4d42a94075d3060
+/// Element type for __AnonStruct_3a8854a0aa6a1ebb
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct AnonStructE4d42a94075d3060 {
+pub struct AnonStruct3a8854a0aa6a1ebb {
+    pub effects: RocList<RocStr>,
     pub m: RocBox,
     pub sub: Subscriptions,
 }
 
-/// Element type for __AnonStruct_e4d42a94075d3060
+/// Element type for __AnonStruct_3a8854a0aa6a1ebb
 #[cfg(not(target_pointer_width = "32"))]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct AnonStructE4d42a94075d3060 {
+pub struct AnonStruct3a8854a0aa6a1ebb {
+    pub effects: RocList<RocStr>,
     pub m: RocBox,
     pub sub: Subscriptions,
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<AnonStructE4d42a94075d3060>() == 24, "AnonStructE4d42a94075d3060 size mismatch");
+const _: () = assert!(core::mem::size_of::<AnonStruct3a8854a0aa6a1ebb>() == 48, "AnonStruct3a8854a0aa6a1ebb size mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::align_of::<AnonStructE4d42a94075d3060>() == 8, "AnonStructE4d42a94075d3060 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<AnonStruct3a8854a0aa6a1ebb>() == 8, "AnonStruct3a8854a0aa6a1ebb alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<AnonStructE4d42a94075d3060>() == 12, "AnonStructE4d42a94075d3060 size mismatch");
+const _: () = assert!(core::mem::size_of::<AnonStruct3a8854a0aa6a1ebb>() == 24, "AnonStruct3a8854a0aa6a1ebb size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<AnonStructE4d42a94075d3060>() == 4, "AnonStructE4d42a94075d3060 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<AnonStruct3a8854a0aa6a1ebb>() == 4, "AnonStruct3a8854a0aa6a1ebb alignment mismatch");
 
 /// Element type for Subscriptions
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Subscriptions {
-    pub stdin: TryType224,
+    pub stdin: TryType226,
 }
 
 /// Element type for Subscriptions
@@ -1254,7 +1256,7 @@ pub struct Subscriptions {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Subscriptions {
-    pub stdin: TryType224,
+    pub stdin: TryType226,
 }
 
 #[cfg(target_pointer_width = "64")]
@@ -4606,14 +4608,14 @@ const _: () = assert!(core::mem::offset_of!(TryType204, tag) == 4, "TryType204 t
 /// Tag discriminant for Try.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TryType224Tag {
+pub enum TryType226Tag {
     Err = 0,
     Ok = 1,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub union TryType224Payload {
+pub union TryType226Payload {
     pub err: [u8; 0],
     pub ok: core::mem::ManuallyDrop<RocErasedCallable>,
 }
@@ -4621,28 +4623,28 @@ pub union TryType224Payload {
 #[cfg(target_pointer_width = "32")]
 #[repr(align(4))]
 #[derive(Clone, Copy)]
-pub struct TryType224PayloadAlignment;
+pub struct TryType226PayloadAlignment;
 
 /// Tag union: Try
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType224 {
-    pub _payload_alignment: [TryType224PayloadAlignment; 0],
+pub struct TryType226 {
+    pub _payload_alignment: [TryType226PayloadAlignment; 0],
     pub payload: [u8; 4],
-    pub tag: TryType224Tag,
+    pub tag: TryType226Tag,
 }
 
 /// Tag union: Try
 #[cfg(not(target_pointer_width = "32"))]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType224 {
-    pub payload: TryType224Payload,
-    pub tag: TryType224Tag,
+pub struct TryType226 {
+    pub payload: TryType226Payload,
+    pub tag: TryType226Tag,
 }
 
-impl TryType224 {
+impl TryType226 {
     #[cfg(target_pointer_width = "32")]
     pub fn payload_ok(&self) -> RocErasedCallable {
         unsafe { core::ptr::read(self.payload.as_ptr() as *const RocErasedCallable) }
@@ -4656,17 +4658,17 @@ impl TryType224 {
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<TryType224>() == 16, "TryType224 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType226>() == 16, "TryType226 size mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::align_of::<TryType224>() == 8, "TryType224 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType226>() == 8, "TryType226 alignment mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::offset_of!(TryType224, tag) == 8, "TryType224 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType226, tag) == 8, "TryType226 tag offset mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<TryType224>() == 8, "TryType224 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType226>() == 8, "TryType226 size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<TryType224>() == 4, "TryType224 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType226>() == 4, "TryType226 alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::offset_of!(TryType224, tag) == 4, "TryType224 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType226, tag) == 4, "TryType226 tag offset mismatch");
 
 /// Return type record for Host.env_platform!
 /// Fields ordered by compiler-emitted ABI offsets.
@@ -5331,11 +5333,11 @@ pub type HostTcpReadUpToResultTag = HostTcpReadExactlyResultTag;
 pub type MainForHostArg0 = OsStr;
 pub type MainForHostArg0Payload = OsStrPayload;
 pub type MainForHostArg0Tag = OsStrTag;
-pub type InitForHost = AnonStructE4d42a94075d3060;
-pub type SubscriptionsStdinResult = TryType224;
-pub type SubscriptionsStdinResultPayload = TryType224Payload;
-pub type SubscriptionsStdinResultTag = TryType224Tag;
-pub type UpdateForHost = AnonStructE4d42a94075d3060;
+pub type InitForHost = AnonStruct3a8854a0aa6a1ebb;
+pub type SubscriptionsStdinResult = TryType226;
+pub type SubscriptionsStdinResultPayload = TryType226Payload;
+pub type SubscriptionsStdinResultTag = TryType226Tag;
+pub type UpdateForHost = AnonStruct3a8854a0aa6a1ebb;
 
 // Generated Refcount Helpers
 
@@ -7413,13 +7415,23 @@ impl AnonStruct57e411f048803101 {
     }
 }
 
-impl AnonStructE4d42a94075d3060 {
+impl AnonStruct3a8854a0aa6a1ebb {
     /// Recursively decrement Roc-owned fields.
     ///
     /// # Safety
     /// `self` must own one live Roc reference for each refcounted field.
     pub unsafe fn decref(self, roc_host: &RocHost) {
         let value = self;
+        {
+            let list = value.effects;
+            if list.has_one_ref() {
+                for item_ref in list.allocation_items() {
+                    let item = *item_ref;
+                        unsafe { item.decref(roc_host); }
+                }
+            }
+            unsafe { list.decref(roc_host); }
+        }
         unsafe { decref_box(value.m as RocBox, roc_host); }
         unsafe { value.sub.decref(roc_host); }
     }
@@ -7431,6 +7443,7 @@ impl AnonStructE4d42a94075d3060 {
     /// be balanced by later decrefs.
     pub unsafe fn incref(self, amount: isize) {
         let value = self;
+        unsafe { value.effects.incref(amount); }
         unsafe { incref_box(value.m as RocBox, amount); }
         unsafe { value.sub.incref(amount); }
     }
@@ -7457,7 +7470,7 @@ impl Subscriptions {
     }
 }
 
-impl TryType224 {
+impl TryType226 {
     /// Recursively decrement Roc-owned payloads.
     ///
     /// # Safety
@@ -7466,8 +7479,8 @@ impl TryType224 {
         let value = self;
         let _ = roc_host;
         match value.tag {
-            TryType224Tag::Err => {},
-            TryType224Tag::Ok => {
+            TryType226Tag::Err => {},
+            TryType226Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { decref_erased_callable(payload, roc_host); }
             },
@@ -7483,8 +7496,8 @@ impl TryType224 {
         let value = self;
         let _ = amount;
         match value.tag {
-            TryType224Tag::Err => {},
-            TryType224Tag::Ok => {
+            TryType226Tag::Err => {},
+            TryType226Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { incref_erased_callable(payload, amount); }
             },
@@ -7915,10 +7928,10 @@ unsafe extern "C" {
     pub fn roc_main(arg0: RocList<OsStr>) -> i32;
 
     /// Entrypoint: init_for_host
-    pub fn roc_init(arg0: RocList<RocStr>) -> AnonStructE4d42a94075d3060;
+    pub fn roc_init(arg0: RocList<RocStr>) -> AnonStruct3a8854a0aa6a1ebb;
 
     /// Entrypoint: update_for_host
-    pub fn roc_update(arg0: RocBox, arg1: RocBox) -> AnonStructE4d42a94075d3060;
+    pub fn roc_update(arg0: RocBox, arg1: RocBox) -> AnonStruct3a8854a0aa6a1ebb;
 
     /// Entrypoint: view_for_host
     pub fn roc_view(arg0: TerminalSettings, arg1: RocBox) -> RocStr;

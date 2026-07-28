@@ -5,6 +5,7 @@ import pf.OsStr
 import pf.Stdout
 import pf.TerminalSettings
 import pf.Subscriptions
+import pf.Effect
 
 application = {
     init : init,
@@ -20,13 +21,14 @@ Event : [
     UserTyped(Str),
 ]
 
-init : List(Str) -> { m: Model, sub: Subscriptions }
+init : List(Str) -> { m: Model, sub: Subscriptions, effects: List(Effect) }
 init = |_args| {
     m: { name: "Test WattApp" },
     sub: Subscriptions.{ stdin: Ok(Box.box(str_to_event)) },
+    effects: [],
 }
 
-update : Model, Event -> { m: Model, sub: Subscriptions }
+update : Model, Event -> { m: Model, sub: Subscriptions, effects: List(Effect) }
 update = |_model, event| {
     new_name = match (event) {
         UserTyped(what) => {
@@ -36,11 +38,12 @@ update = |_model, event| {
     {
         m: { name: new_name },
         sub: Subscriptions.{ stdin: Ok(Box.box(str_to_event)) },
+        effects: [],
     }
 }
 
-str_to_event : Str -> Event
-str_to_event = |what| UserTyped(what)
+str_to_event : List(U8) -> Event
+str_to_event = |what| UserTyped(Str.from_utf8_lossy(what))
 
 view : TerminalSettings, Model -> Str
 view = |_settings, model| { model.name }

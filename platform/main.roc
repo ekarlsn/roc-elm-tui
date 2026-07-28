@@ -4,12 +4,12 @@ platform ""
 	requires {
 		main! : List([Utf8(Str), UnixBytes(List(U8)), WindowsU16s(List(U16))]) => Try({}, [Exit(I32), ..]),
         [Model : model, Event : event] for application : {
-                init : List(Str) -> { m: model, sub: Subscriptions(event) },
-                update : model, event -> { m: model, sub: Subscriptions(event) },
+                init : List(Str) -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
+                update : model, event -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
                 view : TerminalSettings, model -> Str
             }
 	}
-	exposes [Cmd, Subscriptions, TerminalSettings, Env, File, Http, IOErr, Locale, OsStr, Path, Random, Sleep, Sqlite, Stdin, Stdout, Stderr, Tcp, Tty, Url, Utc]
+	exposes [Cmd, Effect, Subscriptions, TerminalSettings, Env, File, Http, IOErr, Locale, OsStr, Path, Random, Sleep, Sqlite, Stdin, Stdout, Stderr, Tcp, Tty, Url, Utc]
 	packages {
 		# HTTP data types (Method, Request, Response) come from the shared
 		# roc-lang/http package so apps and other packages using it see the same
@@ -109,6 +109,7 @@ import Cmd
 import TerminalSettings
 import Subscriptions
 import Env
+import Effect
 import File
 import Host
 import Http
@@ -128,21 +129,21 @@ import Tty
 import Url
 import Utc
 
-init_for_host : List(Str) -> { m: Box(Model), sub: Subscriptions }
+init_for_host : List(Str) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
 init_for_host = |args| {
     init_fn = application.init
     result = init_fn(args)
     boxed_model = Box.box(result.m)
-    { m: boxed_model, sub: result.sub }
+    { m: boxed_model, sub: result.sub, effects: result.effects }
 }
 
-update_for_host : Box(Model), Box(Event) -> { m: Box(Model), sub: Subscriptions }
+update_for_host : Box(Model), Box(Event) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
 update_for_host = |boxed_model, boxed_event| {
     model = Box.unbox(boxed_model)
     event = Box.unbox(boxed_event)
     update_fn = application.update
     res = update_fn(model, event)
-    { m: Box.box(res.m), sub: res.sub }
+    { m: Box.box(res.m), sub: res.sub, effects: res.effects }
 }
 
 

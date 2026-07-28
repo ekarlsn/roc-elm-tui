@@ -1,4 +1,0 @@
-Event :: [
-	None,
-	Stdin(Str),
-]
