@@ -2105,63 +2105,80 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
     let mut roc_host = make_roc_host(core::ptr::null_mut());
     set_roc_host(&mut roc_host);
 
-    // Listen to stdin
+    let terminal_settings = TerminalSettings {
+        width: 50,
+        height: 30,
+    };
 
     // let args_list = build_args_list(argc, argv, &roc_host);
     let result = unsafe { roc_init(RocList::<RocStr>::empty()) };
     println!("init done");
 
-    let initial_model = result.m;
-    let subs = result.sub;
-    let stdin_sub = subs.stdin;
+    let init_effects = result.effects;
+    let mut current_model = result.m;
+    let mut current_subs = result.sub;
 
-    let stdin_text = RocStr::from_str("<Return>", &roc_host);
+    handle_effects(init_effects.as_slice());
 
-    let stdin_closure = match stdin_sub.tag {
+    loop {
+        // view consumes the box (Box.unbox in Roc), so incref first to keep a
+        // live reference for the subsequent roc_update call.
+        unsafe { incref_box(current_model, 1) };
+        let s = unsafe { roc_view(terminal_settings, current_model) };
+        println!("view done: {}", s.as_str());
+
+        let event = match wait_for_next_event(&current_subs, &roc_host) {
+            Some(event) => event,
+            None => return 2,
+        };
+
+        let update_result = unsafe { roc_update(current_model, event) };
+        handle_effects(update_result.effects.as_slice());
+        current_model = update_result.m;
+        current_subs = update_result.sub;
+    }
+}
+
+fn wait_for_next_event(subs: &Subscriptions, roc_host: &RocHost) -> Option<*mut c_void> {
+    let stdin_closure = match subs.stdin.tag {
         SubscriptionsStdinResultTag::Ok => {
             println!("We have a stdin subscription");
-            unsafe { *stdin_sub.payload.ok }
+            unsafe { *subs.stdin.payload.ok }
         }
         SubscriptionsStdinResultTag::Err => {
             println!("No subscriptions from init, nothing to do");
-            return 5;
+            return None;
         }
     };
-    println!("Extracted function pointer payload");
+
     println!("Waiting for stdin...");
-    // let Ok(stdin_listen_result) = stdin_listen(&roc_host) else {
-    //     println!("stdin_listen failed");
-    //     return 15;
-    // };
-    let list_u8: RocListWith<u8, false> =
-        unsafe { RocListWith::<u8, false>::from_slice(&[72u8, 79u8, 65u8], &roc_host) };
-    // unsafe { RocListWith::<u8, false>::empty() };
-
-    let roc_str = RocStr::from_str("Hi", &roc_host);
-
-    println!("Made a list of u8");
-
-    // let event = unsafe { make_event_from_str(stdin_closure, roc_str) };
-    // println!("Converted str to event");
-    let event_from_u8_list = unsafe { make_event_from_list_u8(stdin_closure, list_u8) };
-    println!("Converted list_u8 to event");
-
-    let update_result = unsafe { roc_update(initial_model, event_from_u8_list) };
-    let new_model = update_result.m;
-
-    println!("Called update");
-    let terminal_settings = TerminalSettings {
-        width: 50,
-        height: 30,
+    let Ok(stdin_listen_result) = stdin_listen(&roc_host) else {
+        println!("stdin_listen failed");
+        return None;
     };
-    let s = unsafe { roc_view(terminal_settings, new_model) };
-    let ss = s.as_str();
 
-    println!("view done: {ss}");
+    let event = unsafe { make_event_from_list_u8(stdin_closure, stdin_listen_result) };
+    Some(event)
+}
 
-    // let mut exit_code = unsafe { roc_init(RocList::<RocStr>::empty()) };
-
-    2
+fn handle_effects(effects: &[Effect]) {
+    for effect in effects {
+        match effect.tag {
+            EffectTag::Print => {
+                let text = unsafe { *effect.payload.print };
+                println!("Print: {}", text.as_str());
+            }
+            EffectTag::WriteToFile => {
+                let filename = unsafe { effect.payload.write_to_file.filename };
+                let content = unsafe { effect.payload.write_to_file.content };
+                println!(
+                    "WriteToFile: filename={} content={}",
+                    filename.as_str(),
+                    content.as_str()
+                );
+            }
+        }
+    }
 }
 
 fn stdin_listen(roc_host: &RocHost) -> Result<RocListWith<u8, false>, ()> {

@@ -25,7 +25,7 @@ init : List(Str) -> { m: Model, sub: Subscriptions, effects: List(Effect) }
 init = |_args| {
     m: { name: "Test WattApp" },
     sub: Subscriptions.{ stdin: Ok(Box.box(str_to_event)) },
-    effects: [],
+    effects: [Print("Katten musen"), Print("Tio Tusen")],
 }
 
 update : Model, Event -> { m: Model, sub: Subscriptions, effects: List(Effect) }
@@ -38,7 +38,7 @@ update = |_model, event| {
     {
         m: { name: new_name },
         sub: Subscriptions.{ stdin: Ok(Box.box(str_to_event)) },
-        effects: [],
+        effects: [Print("Hello from Roc")],
     }
 }
 
