@@ -5,10 +5,10 @@ platform ""
         [Model : model, Event : event] for application : {
                 init : List(Str) -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
                 update : model, event -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
-                view : TerminalSettings, model -> Str
+                view : TerminalSettings, model -> List(List(Terminal))
             }
 	}
-	exposes [Effect, Subscriptions, TerminalSettings]
+	exposes [Effect, Subscriptions, TerminalSettings, Terminal]
 	packages {
 		# HTTP data types (Method, Request, Response) come from the shared
 		# roc-lang/http package so apps and other packages using it see the same
@@ -38,6 +38,7 @@ platform ""
 import TerminalSettings
 import Subscriptions
 import Effect
+import Terminal
 
 init_for_host : List(Str) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
 init_for_host = |args| {
@@ -57,11 +58,28 @@ update_for_host = |boxed_model, boxed_event| {
 }
 
 
-view_for_host : TerminalSettings, Box(Model) -> Str
+view_for_host : TerminalSettings, Box(Model) -> List(Str)
 view_for_host = |settings, boxed_model| {
     model = Box.unbox(boxed_model)
     view_fn = application.view
-    view_fn(settings, model)
+    rows = view_fn(settings, model)
+    rows->List.map(|row|
+        row
+            ->List.map(terminal_to_str)
+            ->Str.join_with("")
+    )
+}
+
+terminal_to_str : Terminal -> Str
+terminal_to_str = |t| {
+    match (t) {
+        Fg(Blue) => "\u(001b)[34m"
+        Fg(Green) => "\u(001b)[32m"
+        Bg(Blue) => "\u(001b)[44m"
+        Bg(Green) => "\u(001b)[42m"
+        Text(str) => str
+        Reset => "\u(001b)[0m"
+    }
 }
 
 make_event_from_str : Box(Str -> Event), Str -> Box(Event)

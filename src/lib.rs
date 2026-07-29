@@ -4,11 +4,13 @@
 
 use std::ffi::{c_char, c_void};
 use std::io::Read;
+use std::io::Write;
 use std::os::fd::AsRawFd;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
+use crossterm::terminal;
+use crossterm::ExecutableCommand;
 
 mod roc_platform_abi;
 
@@ -80,24 +82,44 @@ pub extern "C" fn roc_crashed(bytes: *const u8, len: usize) {
 #[cfg(not(test))]
 #[no_mangle]
 pub extern "C" fn main(argc: i32, argv: *const *const c_char) -> i32 {
-    rust_main(argc, argv)
+    rust_main(argc, argv).unwrap()
 }
 
-pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
+pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32> {
     let mut roc_host = make_roc_host(core::ptr::null_mut());
     set_roc_host(&mut roc_host);
 
-    let _ = enable_raw_mode();
-    let _ = disable_raw_mode();
+    let mut stdout = std::io::stdout();
+    _ = stdout.execute(terminal::EnterAlternateScreen);
+    _ = terminal::enable_raw_mode();
 
+    _ = stdout.execute(terminal::Clear(terminal::ClearType::All));
+
+    use crossterm::{style::Stylize, terminal, ExecutableCommand};
+
+    for y in 0..40 {
+        for x in 0..150 {
+            if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
+                // in this loop we are more efficient by not flushing the buffer.
+                stdout
+                    .execute(crossterm::cursor::MoveTo(x, y))?
+                    .execute(crossterm::style::PrintStyledContent("█".magenta()))?;
+            }
+        }
+    }
+
+    // _ = terminal::disable_raw_mode();
+    // _ = stdout.execute(terminal::LeaveAlternateScreen);
+
+    let (columns, rows) = crossterm::terminal::size().unwrap();
     let terminal_settings = TerminalSettings {
-        width: 50,
-        height: 30,
+        width: columns as u64,
+        height: rows as u64,
     };
 
     // let args_list = build_args_list(argc, argv, &roc_host);
     let result = unsafe { roc_init(RocList::<RocStr>::empty()) };
-    println!("init done");
+    // println!("init done");
 
     let init_effects = result.effects;
     let mut current_model = result.m;
@@ -110,11 +132,16 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
         // live reference for the subsequent roc_update call.
         unsafe { incref_box(current_model, 1) };
         let s = unsafe { roc_view(terminal_settings, current_model) };
-        println!("view done: {}", s.as_str());
+        _ = stdout.execute(terminal::Clear(terminal::ClearType::All));
+        _ = stdout.execute(crossterm::cursor::MoveTo(0, 0));
+        for row in s.as_slice() {
+            _ = write!(stdout, "{}", row.as_str());
+            _ = stdout.execute(crossterm::cursor::MoveToNextLine(1));
+        }
 
         let event = match wait_for_next_event(&current_subs, &roc_host) {
             Some(event) => event,
-            None => return 2,
+            None => return Ok(2),
         };
 
         let update_result = unsafe { roc_update(current_model, event) };
@@ -126,19 +153,13 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> i32 {
 
 fn wait_for_next_event(subs: &Subscriptions, roc_host: &RocHost) -> Option<*mut c_void> {
     let stdin_closure = match subs.stdin.tag {
-        SubscriptionsStdinResultTag::Ok => {
-            println!("We have a stdin subscription");
-            unsafe { *subs.stdin.payload.ok }
-        }
+        SubscriptionsStdinResultTag::Ok => unsafe { *subs.stdin.payload.ok },
         SubscriptionsStdinResultTag::Err => {
-            println!("No subscriptions from init, nothing to do");
             return None;
         }
     };
 
-    println!("Waiting for stdin...");
     let Ok(stdin_listen_result) = stdin_listen(&roc_host) else {
-        println!("stdin_listen failed");
         return None;
     };
 

@@ -1550,7 +1550,7 @@ unsafe extern "C" {
     pub fn roc_update(arg0: RocBox, arg1: RocBox) -> AnonStruct3a8854a0aa6a1ebb;
 
     /// Entrypoint: view_for_host
-    pub fn roc_view(arg0: TerminalSettings, arg1: RocBox) -> RocStr;
+    pub fn roc_view(arg0: TerminalSettings, arg1: RocBox) -> RocList<RocStr>;
 
     /// Entrypoint: make_event_from_str
     pub fn make_event_from_str(arg0: RocErasedCallable, arg1: RocStr) -> RocBox;

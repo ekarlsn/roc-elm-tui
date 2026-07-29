@@ -4,6 +4,7 @@ app [ Model, Event, application ] { pf: platform "../platform/main.roc" }
 import pf.TerminalSettings
 import pf.Subscriptions
 import pf.Effect
+import pf.Terminal
 
 application = {
     init : init,
@@ -23,7 +24,7 @@ init : List(Str) -> { m: Model, sub: Subscriptions, effects: List(Effect) }
 init = |_args| {
     m: { name: "Test WattApp" },
     sub: Subscriptions.{ stdin: Ok(Box.box(str_to_event)) },
-    effects: [Print("Katten musen"), Print("Tio Tusen")],
+    effects: [],
 }
 
 update : Model, Event -> { m: Model, sub: Subscriptions, effects: List(Effect) }
@@ -36,12 +37,18 @@ update = |_model, event| {
     {
         m: { name: new_name },
         sub: Subscriptions.{ stdin: Ok(Box.box(str_to_event)) },
-        effects: [Print("Hello from Roc")],
+        effects: [],
     }
 }
 
 str_to_event : List(U8) -> Event
 str_to_event = |what| UserTyped(Str.from_utf8_lossy(what))
 
-view : TerminalSettings, Model -> Str
-view = |_settings, model| { model.name }
+view : TerminalSettings, Model -> List(List(Terminal))
+view = |_settings, model| {
+    [
+        [Fg(Green), Text("  "), Text(model.name), Reset],
+        [Fg(Blue), Text("> Orange"), Reset],
+        [Fg(Green), Text("  Banana"), Reset],
+    ]
+}
