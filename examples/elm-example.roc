@@ -1,8 +1,6 @@
 ## Greet a name supplied as a native command-line argument.
-app [ main!, Model, Event, application ] { pf: platform "../platform/main.roc" }
+app [ Model, Event, application ] { pf: platform "../platform/main.roc" }
 
-import pf.OsStr
-import pf.Stdout
 import pf.TerminalSettings
 import pf.Subscriptions
 import pf.Effect
@@ -47,22 +45,3 @@ str_to_event = |what| UserTyped(Str.from_utf8_lossy(what))
 
 view : TerminalSettings, Model -> Str
 view = |_settings, model| { model.name }
-
-
-main! : List(OsStr) => Try({}, _)
-main! = |args| {
-
-	name : Str
-	name = greeting_name(args)
-
-	Stdout.line!("Hello, ${name}, from basic-cli!")?
-
-	Ok({})
-}
-
-greeting_name : List(OsStr) -> Str
-greeting_name = |args|
-	match args.drop_first(1) {
-		[first, ..] => OsStr.display(first)
-		[] => "friend"
-	}
