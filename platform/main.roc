@@ -70,64 +70,12 @@ view_for_host = |settings, boxed_model| {
     rows = view_fn(settings, model)
     rows->List.map(|row|
         row
-            ->List.map(terminal_to_str)
+            ->List.map(|t| t.to_str())
             ->Str.join_with("")
     )
 }
 
-color_fg_code = |color| match color {
-    Black => "30"
-    Red => "31"
-    Green => "32"
-    Yellow => "33"
-    Blue => "34"
-    Magenta => "35"
-    Cyan => "36"
-    White => "37"
-    BrightBlack => "90"
-    BrightRed => "91"
-    BrightGreen => "92"
-    BrightYellow => "93"
-    BrightBlue => "94"
-    BrightMagenta => "95"
-    BrightCyan => "96"
-    BrightWhite => "97"
-}
 
-color_bg_code = |color| match color {
-    Black => "40"
-    Red => "41"
-    Green => "42"
-    Yellow => "43"
-    Blue => "44"
-    Magenta => "45"
-    Cyan => "46"
-    White => "47"
-    BrightBlack => "100"
-    BrightRed => "101"
-    BrightGreen => "102"
-    BrightYellow => "103"
-    BrightBlue => "104"
-    BrightMagenta => "105"
-    BrightCyan => "106"
-    BrightWhite => "107"
-}
-
-terminal_to_str : Terminal -> Str
-terminal_to_str = |t| {
-    esc = "\u(001b)["
-    match (t) {
-        Fg(color) => "${esc}${color_fg_code(color)}m"
-        Bg(color) => "${esc}${color_bg_code(color)}m"
-        Bold => "${esc}1m"
-        Dim => "${esc}2m"
-        Italic => "${esc}3m"
-        Underline => "${esc}4m"
-        Strikethrough => "${esc}9m"
-        Text(str) => str
-        Reset => "${esc}0m"
-    }
-}
 
 make_event_from_str : Box(Str -> Event), Str -> Box(Event)
 make_event_from_str = |boxed_fn, str| {
