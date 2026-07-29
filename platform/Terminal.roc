@@ -1,6 +1,30 @@
+Color : [
+    Black,
+    Red,
+    Green,
+    Yellow,
+    Blue,
+    Magenta,
+    Cyan,
+    White,
+    BrightBlack,
+    BrightRed,
+    BrightGreen,
+    BrightYellow,
+    BrightBlue,
+    BrightMagenta,
+    BrightCyan,
+    BrightWhite,
+]
+
 Terminal := [
-    Fg([Blue, Green]),
-    Bg([Blue, Green]),
+    Fg(Color),
+    Bg(Color),
+    Bold,
+    Dim,
+    Italic,
+    Underline,
+    Strikethrough,
     Text(Str),
     Reset,
 ]

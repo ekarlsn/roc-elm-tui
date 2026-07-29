@@ -1176,6 +1176,349 @@ const _: () = assert!(core::mem::align_of::<Try>() == 4, "Try alignment mismatch
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::offset_of!(Try, tag) == 4, "Try tag offset mismatch");
 
+/// Tag discriminant for ANSI.Input.
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ANSIInputTag {
+    Action = 0,
+    Arrow = 1,
+    Ctrl = 2,
+    Lower = 3,
+    Number = 4,
+    Symbol = 5,
+    Unsupported = 6,
+    Upper = 7,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub union ANSIInputPayload {
+    pub action: core::mem::ManuallyDrop<ANSIAction>,
+    pub arrow: core::mem::ManuallyDrop<ANSIArrow>,
+    pub ctrl: core::mem::ManuallyDrop<ANSICtrl>,
+    pub lower: core::mem::ManuallyDrop<ANSILetter>,
+    pub number: core::mem::ManuallyDrop<ANSINumber>,
+    pub symbol: core::mem::ManuallyDrop<ANSISymbol>,
+    pub unsupported: core::mem::ManuallyDrop<RocListWith<u8, false>>,
+    pub upper: core::mem::ManuallyDrop<ANSILetter>,
+}
+
+#[cfg(target_pointer_width = "32")]
+#[repr(align(4))]
+#[derive(Clone, Copy)]
+pub struct ANSIInputPayloadAlignment;
+
+/// Tag union: ANSI.Input
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct ANSIInput {
+    pub _payload_alignment: [ANSIInputPayloadAlignment; 0],
+    pub payload: [u8; 12],
+    pub tag: ANSIInputTag,
+}
+
+/// Tag union: ANSI.Input
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct ANSIInput {
+    pub payload: ANSIInputPayload,
+    pub tag: ANSIInputTag,
+}
+
+impl ANSIInput {
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_action(&self) -> ANSIAction {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const ANSIAction) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_action(&self) -> ANSIAction {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.action) }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_arrow(&self) -> ANSIArrow {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const ANSIArrow) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_arrow(&self) -> ANSIArrow {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.arrow) }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_ctrl(&self) -> ANSICtrl {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const ANSICtrl) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_ctrl(&self) -> ANSICtrl {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.ctrl) }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_lower(&self) -> ANSILetter {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const ANSILetter) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_lower(&self) -> ANSILetter {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.lower) }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_number(&self) -> ANSINumber {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const ANSINumber) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_number(&self) -> ANSINumber {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.number) }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_symbol(&self) -> ANSISymbol {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const ANSISymbol) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_symbol(&self) -> ANSISymbol {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.symbol) }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_unsupported(&self) -> RocListWith<u8, false> {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const RocListWith<u8, false>) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_unsupported(&self) -> RocListWith<u8, false> {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.unsupported) }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_upper(&self) -> ANSILetter {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const ANSILetter) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_upper(&self) -> ANSILetter {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.upper) }
+    }
+
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<ANSIInput>() == 32, "ANSIInput size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<ANSIInput>() == 8, "ANSIInput alignment mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::offset_of!(ANSIInput, tag) == 24, "ANSIInput tag offset mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<ANSIInput>() == 16, "ANSIInput size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<ANSIInput>() == 4, "ANSIInput alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::offset_of!(ANSIInput, tag) == 12, "ANSIInput tag offset mismatch");
+
+/// Tag union: ANSI.Action
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ANSIAction {
+    Delete = 0,
+    Enter = 1,
+    Escape = 2,
+    Space = 3,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<ANSIAction>() == 1, "ANSIAction size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<ANSIAction>() == 1, "ANSIAction alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<ANSIAction>() == 1, "ANSIAction size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<ANSIAction>() == 1, "ANSIAction alignment mismatch");
+
+/// Tag union: ANSI.Arrow
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ANSIArrow {
+    Down = 0,
+    Left = 1,
+    Right = 2,
+    Up = 3,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<ANSIArrow>() == 1, "ANSIArrow size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<ANSIArrow>() == 1, "ANSIArrow alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<ANSIArrow>() == 1, "ANSIArrow size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<ANSIArrow>() == 1, "ANSIArrow alignment mismatch");
+
+/// Tag union: ANSI.Ctrl
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ANSICtrl {
+    A = 0,
+    B = 1,
+    BackSlash = 2,
+    C = 3,
+    Caret = 4,
+    D = 5,
+    E = 6,
+    F = 7,
+    G = 8,
+    H = 9,
+    I = 10,
+    J = 11,
+    K = 12,
+    L = 13,
+    N = 14,
+    O = 15,
+    P = 16,
+    Q = 17,
+    R = 18,
+    S = 19,
+    Space = 20,
+    SquareCloseBracket = 21,
+    T = 22,
+    U = 23,
+    Underscore = 24,
+    V = 25,
+    W = 26,
+    X = 27,
+    Y = 28,
+    Z = 29,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<ANSICtrl>() == 1, "ANSICtrl size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<ANSICtrl>() == 1, "ANSICtrl alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<ANSICtrl>() == 1, "ANSICtrl size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<ANSICtrl>() == 1, "ANSICtrl alignment mismatch");
+
+/// Tag union: ANSI.Letter
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ANSILetter {
+    A = 0,
+    B = 1,
+    C = 2,
+    D = 3,
+    E = 4,
+    F = 5,
+    G = 6,
+    H = 7,
+    I = 8,
+    J = 9,
+    K = 10,
+    L = 11,
+    M = 12,
+    N = 13,
+    O = 14,
+    P = 15,
+    Q = 16,
+    R = 17,
+    S = 18,
+    T = 19,
+    U = 20,
+    V = 21,
+    W = 22,
+    X = 23,
+    Y = 24,
+    Z = 25,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<ANSILetter>() == 1, "ANSILetter size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<ANSILetter>() == 1, "ANSILetter alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<ANSILetter>() == 1, "ANSILetter size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<ANSILetter>() == 1, "ANSILetter alignment mismatch");
+
+/// Tag union: ANSI.Number
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ANSINumber {
+    N0 = 0,
+    N1 = 1,
+    N2 = 2,
+    N3 = 3,
+    N4 = 4,
+    N5 = 5,
+    N6 = 6,
+    N7 = 7,
+    N8 = 8,
+    N9 = 9,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<ANSINumber>() == 1, "ANSINumber size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<ANSINumber>() == 1, "ANSINumber alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<ANSINumber>() == 1, "ANSINumber size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<ANSINumber>() == 1, "ANSINumber alignment mismatch");
+
+/// Tag union: ANSI.Symbol
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ANSISymbol {
+    Ampersand = 0,
+    Apostrophe = 1,
+    Asterisk = 2,
+    AtSign = 3,
+    Backslash = 4,
+    Caret = 5,
+    Colon = 6,
+    Comma = 7,
+    CurlyCloseBrace = 8,
+    CurlyOpenBrace = 9,
+    DollarSign = 10,
+    EqualsSign = 11,
+    ExclamationMark = 12,
+    ForwardSlash = 13,
+    FullStop = 14,
+    GraveAccent = 15,
+    GreaterThanSign = 16,
+    Hyphen = 17,
+    LessThanSign = 18,
+    NumberSign = 19,
+    PercentSign = 20,
+    PlusSign = 21,
+    QuestionMark = 22,
+    QuotationMark = 23,
+    RoundCloseBracket = 24,
+    RoundOpenBracket = 25,
+    SemiColon = 26,
+    SquareCloseBracket = 27,
+    SquareOpenBracket = 28,
+    Tilde = 29,
+    Underscore = 30,
+    VerticalBar = 31,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<ANSISymbol>() == 1, "ANSISymbol size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<ANSISymbol>() == 1, "ANSISymbol alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<ANSISymbol>() == 1, "ANSISymbol size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<ANSISymbol>() == 1, "ANSISymbol alignment mismatch");
+
 // Platform Type Aliases
 
 pub type InitForHost = AnonStruct3a8854a0aa6a1ebb;
@@ -1369,6 +1712,221 @@ impl Try {
                 unsafe { incref_erased_callable(payload, amount); }
             },
         }
+    }
+}
+
+impl ANSIInput {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        let _ = roc_host;
+        match value.tag {
+            ANSIInputTag::Action => {
+                let payload = value.payload_action();
+                unsafe { payload.decref(roc_host); }
+            },
+            ANSIInputTag::Arrow => {
+                let payload = value.payload_arrow();
+                unsafe { payload.decref(roc_host); }
+            },
+            ANSIInputTag::Ctrl => {
+                let payload = value.payload_ctrl();
+                unsafe { payload.decref(roc_host); }
+            },
+            ANSIInputTag::Lower => {
+                let payload = value.payload_lower();
+                unsafe { payload.decref(roc_host); }
+            },
+            ANSIInputTag::Number => {
+                let payload = value.payload_number();
+                unsafe { payload.decref(roc_host); }
+            },
+            ANSIInputTag::Symbol => {
+                let payload = value.payload_symbol();
+                unsafe { payload.decref(roc_host); }
+            },
+            ANSIInputTag::Unsupported => {
+                let payload = value.payload_unsupported();
+                unsafe { payload.decref(roc_host); }
+            },
+            ANSIInputTag::Upper => {
+                let payload = value.payload_upper();
+                unsafe { payload.decref(roc_host); }
+            },
+        }
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        let _ = amount;
+        match value.tag {
+            ANSIInputTag::Action => {
+                let payload = value.payload_action();
+                unsafe { payload.incref(amount); }
+            },
+            ANSIInputTag::Arrow => {
+                let payload = value.payload_arrow();
+                unsafe { payload.incref(amount); }
+            },
+            ANSIInputTag::Ctrl => {
+                let payload = value.payload_ctrl();
+                unsafe { payload.incref(amount); }
+            },
+            ANSIInputTag::Lower => {
+                let payload = value.payload_lower();
+                unsafe { payload.incref(amount); }
+            },
+            ANSIInputTag::Number => {
+                let payload = value.payload_number();
+                unsafe { payload.incref(amount); }
+            },
+            ANSIInputTag::Symbol => {
+                let payload = value.payload_symbol();
+                unsafe { payload.incref(amount); }
+            },
+            ANSIInputTag::Unsupported => {
+                let payload = value.payload_unsupported();
+                unsafe { payload.incref(amount); }
+            },
+            ANSIInputTag::Upper => {
+                let payload = value.payload_upper();
+                unsafe { payload.incref(amount); }
+            },
+        }
+    }
+}
+
+impl ANSIAction {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let _ = self;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let _ = self;
+        let _ = amount;
+    }
+}
+
+impl ANSIArrow {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let _ = self;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let _ = self;
+        let _ = amount;
+    }
+}
+
+impl ANSICtrl {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let _ = self;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let _ = self;
+        let _ = amount;
+    }
+}
+
+impl ANSILetter {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let _ = self;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let _ = self;
+        let _ = amount;
+    }
+}
+
+impl ANSINumber {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let _ = self;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let _ = self;
+        let _ = amount;
+    }
+}
+
+impl ANSISymbol {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let _ = self;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let _ = self;
+        let _ = amount;
     }
 }
 

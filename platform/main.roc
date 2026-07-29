@@ -14,6 +14,10 @@ platform ""
 		# roc-lang/http package so apps and other packages using it see the same
 		# nominal types. The platform supplies only the effectful `Http.send!`.
 		http: "https://github.com/roc-lang/http/releases/download/1.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
+		# ANSI input parsing (parse_raw_stdin) and escape sequences.
+		# Apps that handle stdin events must also declare this package at the same URL
+		# so that ANSI.Input resolves to the same nominal type on both sides.
+		ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst",
 	}
 	provides { # Rust calling Roc
         "roc_init": init_for_host,
@@ -39,6 +43,7 @@ import TerminalSettings
 import Subscriptions
 import Effect
 import Terminal
+import ansi.ANSI
 
 init_for_host : List(Str) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
 init_for_host = |args| {
@@ -70,15 +75,57 @@ view_for_host = |settings, boxed_model| {
     )
 }
 
+color_fg_code = |color| match color {
+    Black => "30"
+    Red => "31"
+    Green => "32"
+    Yellow => "33"
+    Blue => "34"
+    Magenta => "35"
+    Cyan => "36"
+    White => "37"
+    BrightBlack => "90"
+    BrightRed => "91"
+    BrightGreen => "92"
+    BrightYellow => "93"
+    BrightBlue => "94"
+    BrightMagenta => "95"
+    BrightCyan => "96"
+    BrightWhite => "97"
+}
+
+color_bg_code = |color| match color {
+    Black => "40"
+    Red => "41"
+    Green => "42"
+    Yellow => "43"
+    Blue => "44"
+    Magenta => "45"
+    Cyan => "46"
+    White => "47"
+    BrightBlack => "100"
+    BrightRed => "101"
+    BrightGreen => "102"
+    BrightYellow => "103"
+    BrightBlue => "104"
+    BrightMagenta => "105"
+    BrightCyan => "106"
+    BrightWhite => "107"
+}
+
 terminal_to_str : Terminal -> Str
 terminal_to_str = |t| {
+    esc = "\u(001b)["
     match (t) {
-        Fg(Blue) => "\u(001b)[34m"
-        Fg(Green) => "\u(001b)[32m"
-        Bg(Blue) => "\u(001b)[44m"
-        Bg(Green) => "\u(001b)[42m"
+        Fg(color) => "${esc}${color_fg_code(color)}m"
+        Bg(color) => "${esc}${color_bg_code(color)}m"
+        Bold => "${esc}1m"
+        Dim => "${esc}2m"
+        Italic => "${esc}3m"
+        Underline => "${esc}4m"
+        Strikethrough => "${esc}9m"
         Text(str) => str
-        Reset => "\u(001b)[0m"
+        Reset => "${esc}0m"
     }
 }
 
@@ -88,8 +135,9 @@ make_event_from_str = |boxed_fn, str| {
     Box.box(fn(str))
 }
 
-make_event_from_list_u8 : Box(List(U8) -> Event), List(U8) -> Box(Event)
+make_event_from_list_u8 : Box(ANSI.Input -> Event), List(U8) -> Box(Event)
 make_event_from_list_u8 = |boxed_fn, list_u8| {
     fn = Box.unbox(boxed_fn)
-    Box.box(fn(list_u8))
+    input = ANSI.parse_raw_stdin(list_u8)
+    Box.box(fn(input))
 }
