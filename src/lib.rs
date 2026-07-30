@@ -251,7 +251,10 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32
     // TODO: subscription changes after init (start/stop TCP) are not propagated.
     let mut tcp = init_tcp_from_subs(&current_subs);
 
-    handle_effects(init_effects.as_slice(), &mut tcp, &roc_host);
+    if let Some(code) = handle_effects(init_effects.as_slice(), &mut tcp, &roc_host) {
+        cleanup_terminal(&mut stdout);
+        return Ok(code as i32);
+    }
 
     loop {
         // `roc_view` calls `Box.unbox` on the model, so incref first to keep a
@@ -274,11 +277,17 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32
 
         let event = match wait_for_next_event(&current_subs, &mut tcp, &roc_host) {
             Some(e) => e,
-            None => return Ok(2),
+            None => {
+                cleanup_terminal(&mut stdout);
+                return Ok(2);
+            }
         };
 
         let update_result = unsafe { roc_update(current_model, event) };
-        handle_effects(update_result.effects.as_slice(), &mut tcp, &roc_host);
+        if let Some(code) = handle_effects(update_result.effects.as_slice(), &mut tcp, &roc_host) {
+            cleanup_terminal(&mut stdout);
+            return Ok(code as i32);
+        }
         current_model = update_result.m;
         current_subs = update_result.sub;
     }
@@ -287,14 +296,14 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32
 /// Read the `accept_tcp_connection` subscription and start the server if requested.
 fn init_tcp_from_subs(subs: &Subscriptions) -> Option<TcpState> {
     match subs.accept_tcp_connection.tag {
-        TryType23Tag::Ok => {
+        SubscriptionsAcceptTcpConnectionResultTag::Ok => {
             let p = subs.accept_tcp_connection.payload_ok();
             // Convert the Roc string to an owned Rust string before the borrow ends.
             let host = p.host.as_str().to_owned();
             let port = p.port;
             start_tcp_server(&host, port)
         }
-        TryType23Tag::Err => None,
+        SubscriptionsAcceptTcpConnectionResultTag::Err => None,
     }
 }
 
@@ -381,7 +390,7 @@ fn wait_for_next_event(
 
         // --- Stdin ---
         if has_stdin && poll_fds[0].revents & libc::POLLIN != 0 {
-            let closure = unsafe { *subs.stdin.payload.ok };
+            let closure = unsafe { core::mem::ManuallyDrop::into_inner(subs.stdin.payload.ok) };
             const BUF_SIZE: usize = 16_384;
             let mut buffer = [0u8; BUF_SIZE];
             match stdin.lock().read(&mut buffer) {
@@ -399,21 +408,21 @@ fn wait_for_next_event(
 
 fn tcp_connected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_void> {
     match subs.accept_tcp_connection.tag {
-        TryType23Tag::Ok => {
+        SubscriptionsAcceptTcpConnectionResultTag::Ok => {
             let p = subs.accept_tcp_connection.payload_ok();
             Some(unsafe { make_event_from_tcp_connected(p.on_connected, id) })
         }
-        TryType23Tag::Err => None,
+        SubscriptionsAcceptTcpConnectionResultTag::Err => None,
     }
 }
 
 fn tcp_disconnected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_void> {
     match subs.accept_tcp_connection.tag {
-        TryType23Tag::Ok => {
+        SubscriptionsAcceptTcpConnectionResultTag::Ok => {
             let p = subs.accept_tcp_connection.payload_ok();
             Some(unsafe { make_event_from_tcp_disconnected(p.on_disconnected, id) })
         }
-        TryType23Tag::Err => None,
+        SubscriptionsAcceptTcpConnectionResultTag::Err => None,
     }
 }
 
@@ -424,13 +433,13 @@ fn tcp_receive_roc_event(
     roc_host: &RocHost,
 ) -> Option<*mut c_void> {
     match subs.tcp_receive.tag {
-        TryType46Tag::Ok => {
+        SubscriptionsTcpReceiveResultTag::Ok => {
             let closure = subs.tcp_receive.payload_ok();
             // Ownership of roc_data is transferred to Roc — no decref needed here.
             let roc_data = unsafe { RocListWith::<u8, false>::from_slice(data, roc_host) };
             Some(unsafe { make_event_from_tcp_receive(closure, id, roc_data) })
         }
-        TryType46Tag::Err => None,
+        SubscriptionsTcpReceiveResultTag::Err => None,
     }
 }
 
@@ -438,9 +447,22 @@ fn tcp_receive_roc_event(
 // Effect handling
 // ---------------------------------------------------------------------------
 
-fn handle_effects(effects: &[Effect], tcp: &mut Option<TcpState>, roc_host: &RocHost) {
+fn cleanup_terminal(stdout: &mut std::io::Stdout) {
+    let _ = terminal::disable_raw_mode();
+    let _ = stdout.execute(terminal::LeaveAlternateScreen);
+}
+
+/// Process effects. Returns `Some(exit_code)` if an `Exit` effect was encountered.
+fn handle_effects(
+    effects: &[Effect],
+    tcp: &mut Option<TcpState>,
+    roc_host: &RocHost,
+) -> Option<u16> {
     for effect in effects {
         match effect.tag {
+            EffectTag::Exit => {
+                return Some(unsafe { *effect.payload.exit });
+            }
             EffectTag::Print => {
                 let text = unsafe { *effect.payload.print };
                 println!("Print: {}", text.as_str());
@@ -475,6 +497,7 @@ fn handle_effects(effects: &[Effect], tcp: &mut Option<TcpState>, roc_host: &Roc
             }
         }
     }
+    None
 }
 
 // ---------------------------------------------------------------------------
