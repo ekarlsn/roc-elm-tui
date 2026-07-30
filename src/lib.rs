@@ -132,11 +132,17 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32
         // live reference for the subsequent roc_update call.
         unsafe { incref_box(current_model, 1) };
         let s = unsafe { roc_view(terminal_settings, current_model) };
-        _ = stdout.execute(terminal::Clear(terminal::ClearType::All));
-        _ = stdout.execute(crossterm::cursor::MoveTo(0, 0));
-        for row in s.as_slice() {
-            _ = write!(stdout, "{}", row.as_str());
-            _ = stdout.execute(crossterm::cursor::MoveToNextLine(1));
+        match s.tag {
+            ViewForHostResultTag::Ok => {
+                _ = stdout.execute(terminal::Clear(terminal::ClearType::All));
+                _ = stdout.execute(crossterm::cursor::MoveTo(0, 0));
+                let s = unsafe { s.payload.ok };
+                for row in s.as_slice() {
+                    _ = write!(stdout, "{}", row.as_str());
+                    _ = stdout.execute(crossterm::cursor::MoveToNextLine(1));
+                }
+            }
+            ViewForHostResultTag::Err => {}
         }
 
         let event = match wait_for_next_event(&current_subs, &roc_host) {

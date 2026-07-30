@@ -5,7 +5,7 @@ platform ""
         [Model : model, Event : event] for application : {
                 init : List(Str) -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
                 update : model, event -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
-                view : TerminalSettings, model -> List(List(Terminal))
+                view : TerminalSettings, model -> [RawMode(List(List(Terminal))), Nothing]
             }
 	}
 	exposes [Effect, Subscriptions, TerminalSettings, Terminal]
@@ -63,16 +63,21 @@ update_for_host = |boxed_model, boxed_event| {
 }
 
 
-view_for_host : TerminalSettings, Box(Model) -> List(Str)
+view_for_host : TerminalSettings, Box(Model) -> Try(List(Str), [Nothing])
 view_for_host = |settings, boxed_model| {
     model = Box.unbox(boxed_model)
     view_fn = application.view
-    rows = view_fn(settings, model)
-    rows->List.map(|row|
-        row
-            ->List.map(|t| t.to_str())
-            ->Str.join_with("")
-    )
+    v = view_fn(settings, model)
+    match (v) {
+        RawMode(rows) => {
+            Ok(rows->List.map(|row|
+                row
+                    ->List.map(|t| t.to_str())
+                    ->Str.join_with("")
+            ))
+        }
+        Nothing => Err(Nothing)
+    }
 }
 
 

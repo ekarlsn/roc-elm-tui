@@ -54,20 +54,21 @@ update = |model, event| {
 input_to_event : ANSI.Input -> Event
 input_to_event = |input| UserTyped(input)
 
-view : TerminalSettings, Model -> List(List(Terminal))
+view : TerminalSettings, Model -> [RawMode(List(List(Terminal))), Nothing]
 view = |_settings, model| {
     selected = [Bg(Blue), Text("> ")]
     base = [Fg(Green), Text("  ")]
-    [
-        [Text(model.name), Reset],
-        [Text("Orange"), Reset],
-        [Text("Banana"), Reset],
-    ].map_with_index(|item, index| {
-        i = index->U64.to_u16_wrap
-        if (i == model.cursorPos) {
-            List.concat(selected, item)
-        } else {
-            List.concat(base, item)
-        }
-    })
+    RawMode(
+        [
+            [Text(model.name), Reset],
+            [Text("Orange"), Reset],
+            [Text("Banana"), Reset],
+        ].map_with_index(|item, index| {
+            i = index->U64.to_u16_wrap
+            if (i == model.cursorPos) {
+                List.concat(selected, item)
+            } else {
+                List.concat(base, item)
+            }
+        }))
 }
