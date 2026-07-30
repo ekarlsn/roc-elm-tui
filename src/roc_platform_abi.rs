@@ -949,13 +949,65 @@ pub struct AnonStruct3a8854a0aa6a1ebb {
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<AnonStruct3a8854a0aa6a1ebb>() == 48, "AnonStruct3a8854a0aa6a1ebb size mismatch");
+const _: () = assert!(core::mem::size_of::<AnonStruct3a8854a0aa6a1ebb>() == 120, "AnonStruct3a8854a0aa6a1ebb size mismatch");
 #[cfg(target_pointer_width = "64")]
 const _: () = assert!(core::mem::align_of::<AnonStruct3a8854a0aa6a1ebb>() == 8, "AnonStruct3a8854a0aa6a1ebb alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<AnonStruct3a8854a0aa6a1ebb>() == 24, "AnonStruct3a8854a0aa6a1ebb size mismatch");
+const _: () = assert!(core::mem::size_of::<AnonStruct3a8854a0aa6a1ebb>() == 60, "AnonStruct3a8854a0aa6a1ebb size mismatch");
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::align_of::<AnonStruct3a8854a0aa6a1ebb>() == 4, "AnonStruct3a8854a0aa6a1ebb alignment mismatch");
+
+/// Element type for __AnonStruct_3b1714e0f1aad535
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct AnonStruct3b1714e0f1aad535 {
+    pub stream: TcpStream,
+    pub data: RocListWith<u8, false>,
+}
+
+/// Element type for __AnonStruct_3b1714e0f1aad535
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct AnonStruct3b1714e0f1aad535 {
+    pub stream: TcpStream,
+    pub data: RocListWith<u8, false>,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<AnonStruct3b1714e0f1aad535>() == 32, "AnonStruct3b1714e0f1aad535 size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<AnonStruct3b1714e0f1aad535>() == 8, "AnonStruct3b1714e0f1aad535 alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<AnonStruct3b1714e0f1aad535>() == 24, "AnonStruct3b1714e0f1aad535 size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<AnonStruct3b1714e0f1aad535>() == 8, "AnonStruct3b1714e0f1aad535 alignment mismatch");
+
+/// Element type for TcpStream
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct TcpStream {
+    pub id: u64,
+}
+
+/// Element type for TcpStream
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct TcpStream {
+    pub id: u64,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<TcpStream>() == 8, "TcpStream size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<TcpStream>() == 8, "TcpStream alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<TcpStream>() == 8, "TcpStream size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<TcpStream>() == 8, "TcpStream alignment mismatch");
 
 /// Element type for __AnonStruct_bba21047290b1d3a
 #[cfg(target_pointer_width = "32")]
@@ -989,7 +1041,9 @@ const _: () = assert!(core::mem::align_of::<AnonStructBba21047290b1d3a>() == 4, 
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Subscriptions {
-    pub stdin: TryType18,
+    pub stdin: TryType32,
+    pub accept_tcp_connection: TryType23,
+    pub tcp_receive: TryType46,
 }
 
 /// Element type for Subscriptions
@@ -997,17 +1051,50 @@ pub struct Subscriptions {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Subscriptions {
-    pub stdin: TryType18,
+    pub stdin: TryType32,
+    pub accept_tcp_connection: TryType23,
+    pub tcp_receive: TryType46,
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<Subscriptions>() == 16, "Subscriptions size mismatch");
+const _: () = assert!(core::mem::size_of::<Subscriptions>() == 88, "Subscriptions size mismatch");
 #[cfg(target_pointer_width = "64")]
 const _: () = assert!(core::mem::align_of::<Subscriptions>() == 8, "Subscriptions alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<Subscriptions>() == 8, "Subscriptions size mismatch");
+const _: () = assert!(core::mem::size_of::<Subscriptions>() == 44, "Subscriptions size mismatch");
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::align_of::<Subscriptions>() == 4, "Subscriptions alignment mismatch");
+
+/// Element type for __AnonStruct_11c0d71a1110c7df
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct AnonStruct11c0d71a1110c7df {
+    pub host: RocStr,
+    pub on_connected: RocErasedCallable,
+    pub on_disconnected: RocErasedCallable,
+    pub port: u16,
+}
+
+/// Element type for __AnonStruct_11c0d71a1110c7df
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct AnonStruct11c0d71a1110c7df {
+    pub host: RocStr,
+    pub on_connected: RocErasedCallable,
+    pub on_disconnected: RocErasedCallable,
+    pub port: u16,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<AnonStruct11c0d71a1110c7df>() == 48, "AnonStruct11c0d71a1110c7df size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<AnonStruct11c0d71a1110c7df>() == 8, "AnonStruct11c0d71a1110c7df alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<AnonStruct11c0d71a1110c7df>() == 24, "AnonStruct11c0d71a1110c7df size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<AnonStruct11c0d71a1110c7df>() == 4, "AnonStruct11c0d71a1110c7df alignment mismatch");
 
 /// Element type for TerminalSettings
 #[cfg(target_pointer_width = "32")]
@@ -1041,18 +1128,20 @@ const _: () = assert!(core::mem::align_of::<TerminalSettings>() == 8, "TerminalS
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EffectTag {
     Print = 0,
-    WriteToFile = 1,
+    TcpSend = 1,
+    WriteToFile = 2,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub union EffectPayload {
     pub print: core::mem::ManuallyDrop<RocStr>,
+    pub tcp_send: core::mem::ManuallyDrop<AnonStruct3b1714e0f1aad535>,
     pub write_to_file: core::mem::ManuallyDrop<AnonStructBba21047290b1d3a>,
 }
 
 #[cfg(target_pointer_width = "32")]
-#[repr(align(4))]
+#[repr(align(8))]
 #[derive(Clone, Copy)]
 pub struct EffectPayloadAlignment;
 
@@ -1087,6 +1176,16 @@ impl Effect {
     }
 
     #[cfg(target_pointer_width = "32")]
+    pub fn payload_tcp_send(&self) -> AnonStruct3b1714e0f1aad535 {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const AnonStruct3b1714e0f1aad535) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_tcp_send(&self) -> AnonStruct3b1714e0f1aad535 {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.tcp_send) }
+    }
+
+    #[cfg(target_pointer_width = "32")]
     pub fn payload_write_to_file(&self) -> AnonStructBba21047290b1d3a {
         unsafe { core::ptr::read(self.payload.as_ptr() as *const AnonStructBba21047290b1d3a) }
     }
@@ -1105,23 +1204,88 @@ const _: () = assert!(core::mem::align_of::<Effect>() == 8, "Effect alignment mi
 #[cfg(target_pointer_width = "64")]
 const _: () = assert!(core::mem::offset_of!(Effect, tag) == 48, "Effect tag offset mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<Effect>() == 28, "Effect size mismatch");
+const _: () = assert!(core::mem::size_of::<Effect>() == 32, "Effect size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<Effect>() == 4, "Effect alignment mismatch");
+const _: () = assert!(core::mem::align_of::<Effect>() == 8, "Effect alignment mismatch");
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::offset_of!(Effect, tag) == 24, "Effect tag offset mismatch");
 
 /// Tag discriminant for Try.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TryType18Tag {
+pub enum TryType23Tag {
     Err = 0,
     Ok = 1,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub union TryType18Payload {
+pub union TryType23Payload {
+    pub err: [u8; 0],
+    pub ok: core::mem::ManuallyDrop<AnonStruct11c0d71a1110c7df>,
+}
+
+#[cfg(target_pointer_width = "32")]
+#[repr(align(4))]
+#[derive(Clone, Copy)]
+pub struct TryType23PayloadAlignment;
+
+/// Tag union: Try
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct TryType23 {
+    pub _payload_alignment: [TryType23PayloadAlignment; 0],
+    pub payload: [u8; 24],
+    pub tag: TryType23Tag,
+}
+
+/// Tag union: Try
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct TryType23 {
+    pub payload: TryType23Payload,
+    pub tag: TryType23Tag,
+}
+
+impl TryType23 {
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_ok(&self) -> AnonStruct11c0d71a1110c7df {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const AnonStruct11c0d71a1110c7df) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_ok(&self) -> AnonStruct11c0d71a1110c7df {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.ok) }
+    }
+
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<TryType23>() == 56, "TryType23 size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<TryType23>() == 8, "TryType23 alignment mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::offset_of!(TryType23, tag) == 48, "TryType23 tag offset mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<TryType23>() == 28, "TryType23 size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<TryType23>() == 4, "TryType23 alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::offset_of!(TryType23, tag) == 24, "TryType23 tag offset mismatch");
+
+/// Tag discriminant for Try.
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TryType32Tag {
+    Err = 0,
+    Ok = 1,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub union TryType32Payload {
     pub err: [u8; 0],
     pub ok: core::mem::ManuallyDrop<RocErasedCallable>,
 }
@@ -1129,28 +1293,28 @@ pub union TryType18Payload {
 #[cfg(target_pointer_width = "32")]
 #[repr(align(4))]
 #[derive(Clone, Copy)]
-pub struct TryType18PayloadAlignment;
+pub struct TryType32PayloadAlignment;
 
 /// Tag union: Try
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType18 {
-    pub _payload_alignment: [TryType18PayloadAlignment; 0],
+pub struct TryType32 {
+    pub _payload_alignment: [TryType32PayloadAlignment; 0],
     pub payload: [u8; 4],
-    pub tag: TryType18Tag,
+    pub tag: TryType32Tag,
 }
 
 /// Tag union: Try
 #[cfg(not(target_pointer_width = "32"))]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType18 {
-    pub payload: TryType18Payload,
-    pub tag: TryType18Tag,
+pub struct TryType32 {
+    pub payload: TryType32Payload,
+    pub tag: TryType32Tag,
 }
 
-impl TryType18 {
+impl TryType32 {
     #[cfg(target_pointer_width = "32")]
     pub fn payload_ok(&self) -> RocErasedCallable {
         unsafe { core::ptr::read(self.payload.as_ptr() as *const RocErasedCallable) }
@@ -1164,17 +1328,17 @@ impl TryType18 {
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<TryType18>() == 16, "TryType18 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType32>() == 16, "TryType32 size mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::align_of::<TryType18>() == 8, "TryType18 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType32>() == 8, "TryType32 alignment mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::offset_of!(TryType18, tag) == 8, "TryType18 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType32, tag) == 8, "TryType32 tag offset mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<TryType18>() == 8, "TryType18 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType32>() == 8, "TryType32 size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<TryType18>() == 4, "TryType18 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType32>() == 4, "TryType32 alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::offset_of!(TryType18, tag) == 4, "TryType18 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType32, tag) == 4, "TryType32 tag offset mismatch");
 
 /// Tag discriminant for ANSI.Input.
 #[repr(u8)]
@@ -1522,6 +1686,71 @@ const _: () = assert!(core::mem::align_of::<ANSISymbol>() == 1, "ANSISymbol alig
 /// Tag discriminant for Try.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TryType46Tag {
+    Err = 0,
+    Ok = 1,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub union TryType46Payload {
+    pub err: [u8; 0],
+    pub ok: core::mem::ManuallyDrop<RocErasedCallable>,
+}
+
+#[cfg(target_pointer_width = "32")]
+#[repr(align(4))]
+#[derive(Clone, Copy)]
+pub struct TryType46PayloadAlignment;
+
+/// Tag union: Try
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct TryType46 {
+    pub _payload_alignment: [TryType46PayloadAlignment; 0],
+    pub payload: [u8; 4],
+    pub tag: TryType46Tag,
+}
+
+/// Tag union: Try
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct TryType46 {
+    pub payload: TryType46Payload,
+    pub tag: TryType46Tag,
+}
+
+impl TryType46 {
+    #[cfg(target_pointer_width = "32")]
+    pub fn payload_ok(&self) -> RocErasedCallable {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const RocErasedCallable) }
+    }
+
+    #[cfg(not(target_pointer_width = "32"))]
+    pub fn payload_ok(&self) -> RocErasedCallable {
+        unsafe { core::mem::ManuallyDrop::into_inner(self.payload.ok) }
+    }
+
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<TryType46>() == 16, "TryType46 size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<TryType46>() == 8, "TryType46 alignment mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::offset_of!(TryType46, tag) == 8, "TryType46 tag offset mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<TryType46>() == 8, "TryType46 size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<TryType46>() == 4, "TryType46 alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::offset_of!(TryType46, tag) == 4, "TryType46 tag offset mismatch");
+
+/// Tag discriminant for Try.
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ViewForHostResultTag {
     Err = 0,
     Ok = 1,
@@ -1590,15 +1819,25 @@ pub type InitForHost = AnonStruct3a8854a0aa6a1ebb;
 pub type InitForHostEffects = Effect;
 pub type InitForHostEffectsPayload = EffectPayload;
 pub type InitForHostEffectsTag = EffectTag;
+pub type InitForHostEffectsTcpSend = AnonStruct3b1714e0f1aad535;
 pub type InitForHostEffectsWriteToFile = AnonStructBba21047290b1d3a;
+pub type EffectTcpSend = AnonStruct3b1714e0f1aad535;
 pub type EffectWriteToFile = AnonStructBba21047290b1d3a;
-pub type SubscriptionsStdinResult = TryType18;
-pub type SubscriptionsStdinResultPayload = TryType18Payload;
-pub type SubscriptionsStdinResultTag = TryType18Tag;
+pub type SubscriptionsAcceptTcpConnectionResult = TryType23;
+pub type SubscriptionsAcceptTcpConnectionResultPayload = TryType23Payload;
+pub type SubscriptionsAcceptTcpConnectionResultTag = TryType23Tag;
+pub type SubscriptionsAcceptTcpConnectionOk = AnonStruct11c0d71a1110c7df;
+pub type SubscriptionsStdinResult = TryType32;
+pub type SubscriptionsStdinResultPayload = TryType32Payload;
+pub type SubscriptionsStdinResultTag = TryType32Tag;
+pub type SubscriptionsTcpReceiveResult = TryType46;
+pub type SubscriptionsTcpReceiveResultPayload = TryType46Payload;
+pub type SubscriptionsTcpReceiveResultTag = TryType46Tag;
 pub type UpdateForHost = AnonStruct3a8854a0aa6a1ebb;
 pub type UpdateForHostEffects = Effect;
 pub type UpdateForHostEffectsPayload = EffectPayload;
 pub type UpdateForHostEffectsTag = EffectTag;
+pub type UpdateForHostEffectsTcpSend = AnonStruct3b1714e0f1aad535;
 pub type UpdateForHostEffectsWriteToFile = AnonStructBba21047290b1d3a;
 
 // Generated Refcount Helpers
@@ -1673,6 +1912,10 @@ impl Effect {
                 let payload = value.payload_print();
                 unsafe { payload.decref(roc_host); }
             },
+            EffectTag::TcpSend => {
+                let payload = value.payload_tcp_send();
+                unsafe { payload.decref(roc_host); }
+            },
             EffectTag::WriteToFile => {
                 let payload = value.payload_write_to_file();
                 unsafe { payload.decref(roc_host); }
@@ -1693,11 +1936,61 @@ impl Effect {
                 let payload = value.payload_print();
                 unsafe { payload.incref(amount); }
             },
+            EffectTag::TcpSend => {
+                let payload = value.payload_tcp_send();
+                unsafe { payload.incref(amount); }
+            },
             EffectTag::WriteToFile => {
                 let payload = value.payload_write_to_file();
                 unsafe { payload.incref(amount); }
             },
         }
+    }
+}
+
+impl AnonStruct3b1714e0f1aad535 {
+    /// Recursively decrement Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted field.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        unsafe { value.stream.decref(roc_host); }
+        unsafe { value.data.decref(roc_host); }
+    }
+
+    /// Increment Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        unsafe { value.stream.incref(amount); }
+        unsafe { value.data.incref(amount); }
+    }
+}
+
+impl TcpStream {
+    /// Recursively decrement Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted field.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        let _ = value;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        let _ = value;
+        let _ = amount;
     }
 }
 
@@ -1731,7 +2024,9 @@ impl Subscriptions {
     /// `self` must own one live Roc reference for each refcounted field.
     pub unsafe fn decref(self, roc_host: &RocHost) {
         let value = self;
+        unsafe { value.accept_tcp_connection.decref(roc_host); }
         unsafe { value.stdin.decref(roc_host); }
+        unsafe { value.tcp_receive.decref(roc_host); }
     }
 
     /// Increment Roc-owned fields.
@@ -1741,11 +2036,13 @@ impl Subscriptions {
     /// be balanced by later decrefs.
     pub unsafe fn incref(self, amount: isize) {
         let value = self;
+        unsafe { value.accept_tcp_connection.incref(amount); }
         unsafe { value.stdin.incref(amount); }
+        unsafe { value.tcp_receive.incref(amount); }
     }
 }
 
-impl TryType18 {
+impl TryType23 {
     /// Recursively decrement Roc-owned payloads.
     ///
     /// # Safety
@@ -1754,8 +2051,68 @@ impl TryType18 {
         let value = self;
         let _ = roc_host;
         match value.tag {
-            TryType18Tag::Err => {},
-            TryType18Tag::Ok => {
+            TryType23Tag::Err => {},
+            TryType23Tag::Ok => {
+                let payload = value.payload_ok();
+                unsafe { payload.decref(roc_host); }
+            },
+        }
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        let _ = amount;
+        match value.tag {
+            TryType23Tag::Err => {},
+            TryType23Tag::Ok => {
+                let payload = value.payload_ok();
+                unsafe { payload.incref(amount); }
+            },
+        }
+    }
+}
+
+impl AnonStruct11c0d71a1110c7df {
+    /// Recursively decrement Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted field.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        unsafe { value.host.decref(roc_host); }
+        unsafe { decref_erased_callable(value.on_connected, roc_host); }
+        unsafe { decref_erased_callable(value.on_disconnected, roc_host); }
+    }
+
+    /// Increment Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        unsafe { value.host.incref(amount); }
+        unsafe { incref_erased_callable(value.on_connected, amount); }
+        unsafe { incref_erased_callable(value.on_disconnected, amount); }
+    }
+}
+
+impl TryType32 {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        let _ = roc_host;
+        match value.tag {
+            TryType32Tag::Err => {},
+            TryType32Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { decref_erased_callable(payload, roc_host); }
             },
@@ -1771,8 +2128,8 @@ impl TryType18 {
         let value = self;
         let _ = amount;
         match value.tag {
-            TryType18Tag::Err => {},
-            TryType18Tag::Ok => {
+            TryType32Tag::Err => {},
+            TryType32Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { incref_erased_callable(payload, amount); }
             },
@@ -1992,6 +2349,41 @@ impl ANSISymbol {
     pub unsafe fn incref(self, amount: isize) {
         let _ = self;
         let _ = amount;
+    }
+}
+
+impl TryType46 {
+    /// Recursively decrement Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted payload.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        let _ = roc_host;
+        match value.tag {
+            TryType46Tag::Err => {},
+            TryType46Tag::Ok => {
+                let payload = value.payload_ok();
+                unsafe { decref_erased_callable(payload, roc_host); }
+            },
+        }
+    }
+
+    /// Increment Roc-owned payloads.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        let _ = amount;
+        match value.tag {
+            TryType46Tag::Err => {},
+            TryType46Tag::Ok => {
+                let payload = value.payload_ok();
+                unsafe { incref_erased_callable(payload, amount); }
+            },
+        }
     }
 }
 
@@ -2224,5 +2616,14 @@ unsafe extern "C" {
 
     /// Entrypoint: make_event_from_list_u8
     pub fn make_event_from_list_u8(arg0: RocErasedCallable, arg1: RocListWith<u8, false>) -> RocBox;
+
+    /// Entrypoint: make_event_from_tcp_connected
+    pub fn make_event_from_tcp_connected(arg0: RocErasedCallable, arg1: u64) -> RocBox;
+
+    /// Entrypoint: make_event_from_tcp_disconnected
+    pub fn make_event_from_tcp_disconnected(arg0: RocErasedCallable, arg1: u64) -> RocBox;
+
+    /// Entrypoint: make_event_from_tcp_receive
+    pub fn make_event_from_tcp_receive(arg0: RocErasedCallable, arg1: u64, arg2: RocListWith<u8, false>) -> RocBox;
 
 }

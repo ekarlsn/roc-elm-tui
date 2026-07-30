@@ -28,7 +28,11 @@ Event : [
 init : List(Str) -> { m: Model, sub: Subscriptions, effects: List(Effect) }
 init = |_args| {
     m: { name: "Test WattApp", cursorPos: 0 },
-    sub: Subscriptions.{ stdin: Ok(Box.box(input_to_event)) },
+    sub: Subscriptions.{
+        stdin: Ok(Box.box(input_to_event)),
+        accept_tcp_connection: Err(NotSubscribed),
+        tcp_receive: Err(NotSubscribed),
+    },
     effects: [],
 }
 
@@ -45,7 +49,11 @@ update = |model, event| {
         sub: if (quit) {
             Subscriptions.none
         } else {
-            Subscriptions.{ stdin: Ok(Box.box(input_to_event)) }
+            Subscriptions.{
+                stdin: Ok(Box.box(input_to_event)),
+                accept_tcp_connection: Err(NotSubscribed),
+                tcp_receive: Err(NotSubscribed),
+            }
         },
         effects: [],
     }

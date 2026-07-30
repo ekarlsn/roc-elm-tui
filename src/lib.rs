@@ -9,7 +9,6 @@ use std::os::fd::AsRawFd;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use crossterm::terminal;
 use crossterm::ExecutableCommand;
 
 mod roc_platform_abi;
@@ -187,6 +186,16 @@ fn handle_effects(effects: &[Effect]) {
                     "WriteToFile: filename={} content={}",
                     filename.as_str(),
                     content.as_str()
+                );
+            }
+            EffectTag::TcpSend => {
+                let payload = effect.payload_tcp_send();
+                let stream_id = payload.stream.id;
+                let data = payload.data.as_slice();
+                eprintln!(
+                    "TcpSend: stream_id={} bytes={} (not yet implemented)",
+                    stream_id,
+                    data.len()
                 );
             }
         }

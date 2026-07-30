@@ -8,7 +8,7 @@ platform ""
                 view : TerminalSettings, model -> [RawMode(List(List(Terminal))), Nothing]
             }
 	}
-	exposes [Effect, Subscriptions, TerminalSettings, Terminal]
+	exposes [Effect, Subscriptions, TerminalSettings, Terminal, TcpStream]
 	packages {
 		# HTTP data types (Method, Request, Response) come from the shared
 		# roc-lang/http package so apps and other packages using it see the same
@@ -27,6 +27,9 @@ platform ""
         # Helpers for making events
         "make_event_from_str": make_event_from_str,
         "make_event_from_list_u8": make_event_from_list_u8,
+        "make_event_from_tcp_connected": make_event_from_tcp_connected,
+        "make_event_from_tcp_disconnected": make_event_from_tcp_disconnected,
+        "make_event_from_tcp_receive": make_event_from_tcp_receive,
     }
 	hosted { # Roc calling Rust
 	}
@@ -43,6 +46,7 @@ import TerminalSettings
 import Subscriptions
 import Effect
 import Terminal
+import TcpStream
 import ansi.ANSI
 
 init_for_host : List(Str) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
@@ -93,4 +97,22 @@ make_event_from_list_u8 = |boxed_fn, list_u8| {
     fn = Box.unbox(boxed_fn)
     input = ANSI.parse_raw_stdin(list_u8)
     Box.box(fn(input))
+}
+
+make_event_from_tcp_connected : Box(TcpStream -> Event), U64 -> Box(Event)
+make_event_from_tcp_connected = |boxed_fn, stream_id| {
+    fn = Box.unbox(boxed_fn)
+    Box.box(fn(TcpStream.new(stream_id)))
+}
+
+make_event_from_tcp_disconnected : Box(TcpStream -> Event), U64 -> Box(Event)
+make_event_from_tcp_disconnected = |boxed_fn, stream_id| {
+    fn = Box.unbox(boxed_fn)
+    Box.box(fn(TcpStream.new(stream_id)))
+}
+
+make_event_from_tcp_receive : Box((TcpStream, List(U8) -> Event)), U64, List(U8) -> Box(Event)
+make_event_from_tcp_receive = |boxed_fn, stream_id, data| {
+    fn = Box.unbox(boxed_fn)
+    Box.box(fn(TcpStream.new(stream_id), data))
 }
