@@ -31,6 +31,7 @@ init = |_args| {
     sub: Subscriptions.{
         stdin: Ok(Box.box(input_to_event)),
         accept_tcp_connection: Err(NotSubscribed),
+        tcp_connect: Err(NotSubscribed),
         tcp_receive: Err(NotSubscribed),
     },
     effects: [],
@@ -52,6 +53,7 @@ update = |model, event| {
             Subscriptions.{
                 stdin: Ok(Box.box(input_to_event)),
                 accept_tcp_connection: Err(NotSubscribed),
+                tcp_connect: Err(NotSubscribed),
                 tcp_receive: Err(NotSubscribed),
             }
         },

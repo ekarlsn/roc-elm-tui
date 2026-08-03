@@ -206,6 +206,79 @@ fn start_tcp_server(host: &str, port: u16) -> Option<TcpState> {
     })
 }
 
+/// Connect to a remote TCP host and start a reader thread.
+///
+/// Returns `None` if the connection fails.
+fn start_tcp_client(address: &str, port: u16) -> Option<TcpState> {
+    let mut pipe_fds = [0i32; 2];
+    if unsafe { libc::pipe(pipe_fds.as_mut_ptr()) } < 0 {
+        eprintln!("TCP: pipe() failed");
+        return None;
+    }
+    let notify_rx = pipe_fds[0];
+    let notify_tx = pipe_fds[1];
+
+    let (tx, rx) = mpsc::channel::<TcpEvent>();
+
+    let addr = format!("{}:{}", address, port);
+    let stream = match std::net::TcpStream::connect(&addr) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("TCP: connect {} failed: {}", addr, e);
+            return None;
+        }
+    };
+    eprintln!("TCP client connected to {}", addr);
+
+    let id: u64 = 0; // Client connections always use ID 0 for simplicity
+
+    // Clone the stream: one handle for writing (kept by main), one for reading.
+    let writer = match stream.try_clone() {
+        Ok(w) => w,
+        Err(e) => {
+            eprintln!("TCP: stream clone failed: {}", e);
+            return None;
+        }
+    };
+
+    let _ = tx.send(TcpEvent::Connected(id, writer));
+    pipe_notify(notify_tx);
+
+    // Reader thread for the connection.
+    std::thread::spawn(move || {
+        let mut reader = stream;
+        let mut buf = vec![0u8; 4096];
+
+        loop {
+            match reader.read(&mut buf) {
+                Ok(0) => {
+                    // EOF — server closed the connection.
+                    let _ = tx.send(TcpEvent::Disconnected(id));
+                    pipe_notify(notify_tx);
+                    break;
+                }
+                Ok(n) => {
+                    let _ = tx.send(TcpEvent::Data(id, buf[..n].to_vec()));
+                    pipe_notify(notify_tx);
+                }
+                Err(e) => {
+                    eprintln!("TCP: read error: {}", e);
+                    let _ = tx.send(TcpEvent::Disconnected(id));
+                    pipe_notify(notify_tx);
+                    break;
+                }
+            }
+        }
+    });
+
+    Some(TcpState {
+        event_rx: rx,
+        notify_rx,
+        notify_tx,
+        writers: HashMap::new(),
+    })
+}
+
 // ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
@@ -293,18 +366,32 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32
     }
 }
 
-/// Read the `accept_tcp_connection` subscription and start the server if requested.
+/// Read the `accept_tcp_connection` or `tcp_connect` subscription and start the server/client.
+/// Priority: accept_tcp_connection takes precedence over tcp_connect if both are present.
 fn init_tcp_from_subs(subs: &Subscriptions) -> Option<TcpState> {
+    // Try accept_tcp_connection first (server mode)
     match subs.accept_tcp_connection.tag {
         SubscriptionsAcceptTcpConnectionResultTag::Ok => {
             let p = subs.accept_tcp_connection.payload_ok();
-            // Convert the Roc string to an owned Rust string before the borrow ends.
             let host = p.host.as_str().to_owned();
             let port = p.port;
-            start_tcp_server(&host, port)
+            return start_tcp_server(&host, port);
         }
-        SubscriptionsAcceptTcpConnectionResultTag::Err => None,
+        SubscriptionsAcceptTcpConnectionResultTag::Err => {}
     }
+
+    // Try tcp_connect (client mode)
+    match subs.tcp_connect.tag {
+        TryType47Tag::Ok => {
+            let p = subs.tcp_connect.payload_ok();
+            let address = p.address.as_str().to_owned();
+            let port = p.port;
+            return start_tcp_client(&address, port);
+        }
+        TryType47Tag::Err => {}
+    }
+
+    None
 }
 
 // ---------------------------------------------------------------------------
@@ -407,23 +494,47 @@ fn wait_for_next_event(
 }
 
 fn tcp_connected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_void> {
+    // Try accept_tcp_connection first (server mode)
     match subs.accept_tcp_connection.tag {
         SubscriptionsAcceptTcpConnectionResultTag::Ok => {
             let p = subs.accept_tcp_connection.payload_ok();
-            Some(unsafe { make_event_from_tcp_connected(p.on_connected, id) })
+            return Some(unsafe { make_event_from_tcp_connected(p.on_connected, id) });
         }
-        SubscriptionsAcceptTcpConnectionResultTag::Err => None,
+        SubscriptionsAcceptTcpConnectionResultTag::Err => {}
     }
+
+    // Try tcp_connect (client mode)
+    match subs.tcp_connect.tag {
+        TryType47Tag::Ok => {
+            let p = subs.tcp_connect.payload_ok();
+            return Some(unsafe { make_event_from_tcp_connected(p.on_connected, id) });
+        }
+        TryType47Tag::Err => {}
+    }
+
+    None
 }
 
 fn tcp_disconnected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_void> {
+    // Try accept_tcp_connection first (server mode)
     match subs.accept_tcp_connection.tag {
         SubscriptionsAcceptTcpConnectionResultTag::Ok => {
             let p = subs.accept_tcp_connection.payload_ok();
-            Some(unsafe { make_event_from_tcp_disconnected(p.on_disconnected, id) })
+            return Some(unsafe { make_event_from_tcp_disconnected(p.on_disconnected, id) });
         }
-        SubscriptionsAcceptTcpConnectionResultTag::Err => None,
+        SubscriptionsAcceptTcpConnectionResultTag::Err => {}
     }
+
+    // Try tcp_connect (client mode)
+    match subs.tcp_connect.tag {
+        TryType47Tag::Ok => {
+            let p = subs.tcp_connect.payload_ok();
+            return Some(unsafe { make_event_from_tcp_disconnected(p.on_disconnected, id) });
+        }
+        TryType47Tag::Err => {}
+    }
+
+    None
 }
 
 fn tcp_receive_roc_event(

@@ -44,6 +44,7 @@ subs = Subscriptions.{
         on_connected: Box.box(|stream| ClientConnected(stream)),
         on_disconnected: Box.box(|stream| ClientDisconnected(stream)),
     }),
+    tcp_connect: Err(NotSubscribed),
     tcp_receive: Ok(Box.box(|stream, data| MessageReceived(stream, data))),
 }
 

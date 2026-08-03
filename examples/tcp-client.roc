@@ -1,60 +1,160 @@
-## Exchange lines with a local TCP echo server using buffered stream operations.
-app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.21.0-rc4/FvCh4vdqm3nBY6DWEfZ8RuGCVfjuMY43HA8KSNk9qVDn.tar.zst" }
-
-import pf.OsStr
-import pf.Tcp
-import pf.Stdout
-import pf.Stdin
-
-# To try it interactively, start an echo server in another terminal first:
-#
-#     $ ncat -e $(which cat) -l 8085
-#
-# then run this example.
-main! : List(OsStr) => Try({}, _)
-main! = |_args| {
-
-	stream : Tcp.Stream
-	stream = Tcp.connect!("127.0.0.1", 8085, 1_000) ? |err| ConnectFailed(err)
-
-	verify_stream_methods!(stream)?
-
-	Stdout.line!("Connected!")?
-
-	run!(stream)
+## TCP client example — connects to a remote server and sends/receives messages.
+app [ Model, Event, application ] {
+    pf: platform "../platform/main.roc",
+    ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst",
 }
 
-## Exercise every read and write operation against the echo test server.
-verify_stream_methods! : Tcp.Stream => Try({}, _)
-verify_stream_methods! = |stream| {
-	stream.write!([1, 2, 3], 1_000)?
-	exact_bytes = stream.read_exactly!(3, 1_000)?
-	expect exact_bytes == [1, 2, 3]
+import pf.TerminalSettings
+import pf.Subscriptions
+import pf.Effect
+import pf.Terminal
+import pf.TcpStream
+import ansi.ANSI
 
-	stream.write_utf8!("until|", 1_000)?
-	until_bytes = stream.read_until!(124, 64, 1_000)?
-	expect until_bytes == [117, 110, 116, 105, 108, 124]
-
-	stream.write!([42], 1_000)?
-	up_to_bytes = stream.read_up_to!(1, 1_000)?
-	expect up_to_bytes == [42]
-
-	Ok({})
+application = {
+    init: init,
+    update: update,
+    view: view,
 }
 
-## Read a line from stdin, send it to the server, print the response, repeat.
-run! : Tcp.Stream => Try({}, _)
-run! = |stream| {
-	Stdout.write!("> ")?
-	match Stdin.line!() {
-		# No more input — exit cleanly.
-		Err(EndOfFile) => Ok({})
-		Err(StdinErr(err)) => Err(StdinReadFailed(err))
-		Ok(out_msg) => {
-			stream.write_utf8!("${out_msg}\n", 5_000) ? |err| TcpWriteFailed(err)
-			in_msg = stream.read_line!(1_048_576, 5_000) ? |err| TcpReadFailed(err)
-			Stdout.line!("< ${in_msg}")?
-			run!(stream)
-		}
-	}
+Model : {
+    connection: [NotConnected, Connected(TcpStream), Disconnected],
+    messages: List(Str),
+    message_count: U64,
+}
+
+Event : [
+    ServerConnected(TcpStream),
+    ServerDisconnected(TcpStream),
+    MessageReceived(TcpStream, List(U8)),
+    UserInput(ANSI.Input),
+]
+
+# Configuration for the server to connect to
+server_address : Str
+server_address = "127.0.0.1"
+
+server_port : U16
+server_port = 8080.U16
+
+init : List(Str) -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
+init = |_args| {
+    m = {
+        connection: NotConnected,
+        messages: [],
+        message_count: 0,
+    }
+    sub = Subscriptions.{
+        stdin: Ok(Box.box(|input| UserInput(input))),
+        accept_tcp_connection: Err(NotSubscribed),
+        tcp_connect: Ok({
+            address: server_address,
+            port: server_port,
+            on_connected: Box.box(|stream| ServerConnected(stream)),
+            on_disconnected: Box.box(|stream| ServerDisconnected(stream)),
+        }),
+        tcp_receive: Ok(Box.box(|stream, data| MessageReceived(stream, data))),
+    }
+    { m, sub, effects: [] }
+}
+
+update : Model, Event -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
+update = |model, event| {
+    match event {
+        ServerConnected(stream) => {
+            new_model = { ..model,
+                connection: Connected(stream),
+                messages: model.messages.append("✓ Connected to server"),
+            }
+            { m: new_model, sub: get_subs(new_model), effects: [] }
+        }
+
+        ServerDisconnected(_) => {
+            new_model = { ..model,
+                connection: Disconnected,
+                messages: model.messages.append("✗ Disconnected from server"),
+            }
+            { m: new_model, sub: get_subs(new_model), effects: [] }
+        }
+
+        MessageReceived(_, data) => {
+            message_str = data->List.map(|byte| byte.to_str())->Str.join_with(" ")
+            new_model = { ..model,
+                messages: model.messages.append("← Received: ${message_str}"),
+            }
+            { m: new_model, sub: get_subs(new_model), effects: [] }
+        }
+
+        UserInput(Ctrl(C)) => {
+            { m: model, sub: Subscriptions.none, effects: [Exit(0)] }
+        }
+        UserInput(input) => {
+            # Send a message when any key is pressed (except Ctrl+C)
+            match model.connection {
+                Connected(stream) => {
+                    new_count = model.message_count + 1
+                    message = "Hello ${new_count.to_str()}: ${ANSI.input_to_str(input)}"
+                    data = Str.to_utf8(message)
+                    effects = [TcpSend({ stream, data })]
+                    new_model = { ..model,
+                        message_count: new_count,
+                        messages: model.messages.append("→ Sent: ${message}"),
+                    }
+                    { m: new_model, sub: get_subs(new_model), effects }
+                }
+                _ => {
+                    new_model = { ..model,
+                        messages: model.messages.append("✗ Not connected"),
+                    }
+                    { m: new_model, sub: get_subs(new_model), effects: [] }
+                }
+            }
+        }
+    }
+}
+
+get_subs : Model -> Subscriptions(Event)
+get_subs = |_model| {
+    Subscriptions.{
+        stdin: Ok(Box.box(|input| UserInput(input))),
+        accept_tcp_connection: Err(NotSubscribed),
+        tcp_connect: Ok({
+            address: server_address,
+            port: server_port,
+            on_connected: Box.box(|stream| ServerConnected(stream)),
+            on_disconnected: Box.box(|stream| ServerDisconnected(stream)),
+        }),
+        tcp_receive: Ok(Box.box(|stream, data| MessageReceived(stream, data))),
+    }
+}
+
+view : TerminalSettings, Model -> [RawMode(List(List(Terminal))), Nothing]
+view = |_settings, model| {
+    connection_status = match model.connection {
+        NotConnected => [Fg(Yellow), Text("⏳ Connecting..."), Reset]
+        Connected(_) => [Fg(Green), Text("✓ Connected"), Reset]
+        Disconnected => [Fg(Red), Text("✗ Disconnected"), Reset]
+    }
+
+    message_rows = model.messages
+        ->List.take_last(10)
+        ->List.map(|msg| [Fg(BrightBlack), Text(msg), Reset])
+
+    header = [
+        [Bold, Fg(Cyan), Text("TCP Client"), Reset],
+        [Text("Server: ${server_address}:${server_port.to_str()}")],
+        connection_status,
+        [],
+        [Dim, Text("Messages (last 10):"), Reset],
+    ]
+
+    footer = [
+        [],
+        [Dim, Text("Press any key to send a message, Ctrl+C to exit"), Reset],
+    ]
+
+    rows = List.concat(header, message_rows)
+    rows_with_footer = List.concat(rows, footer)
+
+    RawMode(rows_with_footer)
 }
