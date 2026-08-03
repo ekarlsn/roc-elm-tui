@@ -928,6 +928,31 @@ const _: () = assert!(core::mem::size_of::<AnonStruct57e411f048803101>() == 12, 
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::align_of::<AnonStruct57e411f048803101>() == 4, "AnonStruct57e411f048803101 alignment mismatch");
 
+/// Element type for Context
+#[cfg(target_pointer_width = "32")]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct Context {
+    pub now_nanos: u128,
+}
+
+/// Element type for Context
+#[cfg(not(target_pointer_width = "32"))]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct Context {
+    pub now_nanos: u128,
+}
+
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::size_of::<Context>() == 16, "Context size mismatch");
+#[cfg(target_pointer_width = "64")]
+const _: () = assert!(core::mem::align_of::<Context>() == 16, "Context alignment mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::size_of::<Context>() == 16, "Context size mismatch");
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(core::mem::align_of::<Context>() == 16, "Context alignment mismatch");
+
 /// Element type for __AnonStruct_3a8854a0aa6a1ebb
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
@@ -1041,10 +1066,10 @@ const _: () = assert!(core::mem::align_of::<AnonStructBba21047290b1d3a>() == 4, 
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Subscriptions {
-    pub stdin: TryType33,
-    pub accept_tcp_connection: TryType24,
-    pub tcp_connect: TryType47,
-    pub tcp_receive: TryType56,
+    pub stdin: TryType35,
+    pub accept_tcp_connection: TryType26,
+    pub tcp_connect: TryType49,
+    pub tcp_receive: TryType58,
 }
 
 /// Element type for Subscriptions
@@ -1052,10 +1077,10 @@ pub struct Subscriptions {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Subscriptions {
-    pub stdin: TryType33,
-    pub accept_tcp_connection: TryType24,
-    pub tcp_connect: TryType47,
-    pub tcp_receive: TryType56,
+    pub stdin: TryType35,
+    pub accept_tcp_connection: TryType26,
+    pub tcp_connect: TryType49,
+    pub tcp_receive: TryType58,
 }
 
 #[cfg(target_pointer_width = "64")]
@@ -1258,14 +1283,14 @@ const _: () = assert!(core::mem::offset_of!(Effect, tag) == 24, "Effect tag offs
 /// Tag discriminant for Try.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TryType24Tag {
+pub enum TryType26Tag {
     Err = 0,
     Ok = 1,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub union TryType24Payload {
+pub union TryType26Payload {
     pub err: [u8; 0],
     pub ok: core::mem::ManuallyDrop<AnonStruct11c0d71a1110c7df>,
 }
@@ -1273,28 +1298,28 @@ pub union TryType24Payload {
 #[cfg(target_pointer_width = "32")]
 #[repr(align(4))]
 #[derive(Clone, Copy)]
-pub struct TryType24PayloadAlignment;
+pub struct TryType26PayloadAlignment;
 
 /// Tag union: Try
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType24 {
-    pub _payload_alignment: [TryType24PayloadAlignment; 0],
+pub struct TryType26 {
+    pub _payload_alignment: [TryType26PayloadAlignment; 0],
     pub payload: [u8; 24],
-    pub tag: TryType24Tag,
+    pub tag: TryType26Tag,
 }
 
 /// Tag union: Try
 #[cfg(not(target_pointer_width = "32"))]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType24 {
-    pub payload: TryType24Payload,
-    pub tag: TryType24Tag,
+pub struct TryType26 {
+    pub payload: TryType26Payload,
+    pub tag: TryType26Tag,
 }
 
-impl TryType24 {
+impl TryType26 {
     #[cfg(target_pointer_width = "32")]
     pub fn payload_ok(&self) -> AnonStruct11c0d71a1110c7df {
         unsafe { core::ptr::read(self.payload.as_ptr() as *const AnonStruct11c0d71a1110c7df) }
@@ -1308,29 +1333,29 @@ impl TryType24 {
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<TryType24>() == 56, "TryType24 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType26>() == 56, "TryType26 size mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::align_of::<TryType24>() == 8, "TryType24 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType26>() == 8, "TryType26 alignment mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::offset_of!(TryType24, tag) == 48, "TryType24 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType26, tag) == 48, "TryType26 tag offset mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<TryType24>() == 28, "TryType24 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType26>() == 28, "TryType26 size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<TryType24>() == 4, "TryType24 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType26>() == 4, "TryType26 alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::offset_of!(TryType24, tag) == 24, "TryType24 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType26, tag) == 24, "TryType26 tag offset mismatch");
 
 /// Tag discriminant for Try.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TryType33Tag {
+pub enum TryType35Tag {
     Err = 0,
     Ok = 1,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub union TryType33Payload {
+pub union TryType35Payload {
     pub err: [u8; 0],
     pub ok: core::mem::ManuallyDrop<RocErasedCallable>,
 }
@@ -1338,28 +1363,28 @@ pub union TryType33Payload {
 #[cfg(target_pointer_width = "32")]
 #[repr(align(4))]
 #[derive(Clone, Copy)]
-pub struct TryType33PayloadAlignment;
+pub struct TryType35PayloadAlignment;
 
 /// Tag union: Try
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType33 {
-    pub _payload_alignment: [TryType33PayloadAlignment; 0],
+pub struct TryType35 {
+    pub _payload_alignment: [TryType35PayloadAlignment; 0],
     pub payload: [u8; 4],
-    pub tag: TryType33Tag,
+    pub tag: TryType35Tag,
 }
 
 /// Tag union: Try
 #[cfg(not(target_pointer_width = "32"))]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType33 {
-    pub payload: TryType33Payload,
-    pub tag: TryType33Tag,
+pub struct TryType35 {
+    pub payload: TryType35Payload,
+    pub tag: TryType35Tag,
 }
 
-impl TryType33 {
+impl TryType35 {
     #[cfg(target_pointer_width = "32")]
     pub fn payload_ok(&self) -> RocErasedCallable {
         unsafe { core::ptr::read(self.payload.as_ptr() as *const RocErasedCallable) }
@@ -1373,17 +1398,17 @@ impl TryType33 {
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<TryType33>() == 16, "TryType33 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType35>() == 16, "TryType35 size mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::align_of::<TryType33>() == 8, "TryType33 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType35>() == 8, "TryType35 alignment mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::offset_of!(TryType33, tag) == 8, "TryType33 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType35, tag) == 8, "TryType35 tag offset mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<TryType33>() == 8, "TryType33 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType35>() == 8, "TryType35 size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<TryType33>() == 4, "TryType33 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType35>() == 4, "TryType35 alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::offset_of!(TryType33, tag) == 4, "TryType33 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType35, tag) == 4, "TryType35 tag offset mismatch");
 
 /// Tag discriminant for ANSI.Input.
 #[repr(u8)]
@@ -1731,14 +1756,14 @@ const _: () = assert!(core::mem::align_of::<ANSISymbol>() == 1, "ANSISymbol alig
 /// Tag discriminant for Try.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TryType47Tag {
+pub enum TryType49Tag {
     Err = 0,
     Ok = 1,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub union TryType47Payload {
+pub union TryType49Payload {
     pub err: [u8; 0],
     pub ok: core::mem::ManuallyDrop<AnonStruct3662079be59957c3>,
 }
@@ -1746,28 +1771,28 @@ pub union TryType47Payload {
 #[cfg(target_pointer_width = "32")]
 #[repr(align(4))]
 #[derive(Clone, Copy)]
-pub struct TryType47PayloadAlignment;
+pub struct TryType49PayloadAlignment;
 
 /// Tag union: Try
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType47 {
-    pub _payload_alignment: [TryType47PayloadAlignment; 0],
+pub struct TryType49 {
+    pub _payload_alignment: [TryType49PayloadAlignment; 0],
     pub payload: [u8; 24],
-    pub tag: TryType47Tag,
+    pub tag: TryType49Tag,
 }
 
 /// Tag union: Try
 #[cfg(not(target_pointer_width = "32"))]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType47 {
-    pub payload: TryType47Payload,
-    pub tag: TryType47Tag,
+pub struct TryType49 {
+    pub payload: TryType49Payload,
+    pub tag: TryType49Tag,
 }
 
-impl TryType47 {
+impl TryType49 {
     #[cfg(target_pointer_width = "32")]
     pub fn payload_ok(&self) -> AnonStruct3662079be59957c3 {
         unsafe { core::ptr::read(self.payload.as_ptr() as *const AnonStruct3662079be59957c3) }
@@ -1781,29 +1806,29 @@ impl TryType47 {
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<TryType47>() == 56, "TryType47 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType49>() == 56, "TryType49 size mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::align_of::<TryType47>() == 8, "TryType47 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType49>() == 8, "TryType49 alignment mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::offset_of!(TryType47, tag) == 48, "TryType47 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType49, tag) == 48, "TryType49 tag offset mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<TryType47>() == 28, "TryType47 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType49>() == 28, "TryType49 size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<TryType47>() == 4, "TryType47 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType49>() == 4, "TryType49 alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::offset_of!(TryType47, tag) == 24, "TryType47 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType49, tag) == 24, "TryType49 tag offset mismatch");
 
 /// Tag discriminant for Try.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TryType56Tag {
+pub enum TryType58Tag {
     Err = 0,
     Ok = 1,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub union TryType56Payload {
+pub union TryType58Payload {
     pub err: [u8; 0],
     pub ok: core::mem::ManuallyDrop<RocErasedCallable>,
 }
@@ -1811,28 +1836,28 @@ pub union TryType56Payload {
 #[cfg(target_pointer_width = "32")]
 #[repr(align(4))]
 #[derive(Clone, Copy)]
-pub struct TryType56PayloadAlignment;
+pub struct TryType58PayloadAlignment;
 
 /// Tag union: Try
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType56 {
-    pub _payload_alignment: [TryType56PayloadAlignment; 0],
+pub struct TryType58 {
+    pub _payload_alignment: [TryType58PayloadAlignment; 0],
     pub payload: [u8; 4],
-    pub tag: TryType56Tag,
+    pub tag: TryType58Tag,
 }
 
 /// Tag union: Try
 #[cfg(not(target_pointer_width = "32"))]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct TryType56 {
-    pub payload: TryType56Payload,
-    pub tag: TryType56Tag,
+pub struct TryType58 {
+    pub payload: TryType58Payload,
+    pub tag: TryType58Tag,
 }
 
-impl TryType56 {
+impl TryType58 {
     #[cfg(target_pointer_width = "32")]
     pub fn payload_ok(&self) -> RocErasedCallable {
         unsafe { core::ptr::read(self.payload.as_ptr() as *const RocErasedCallable) }
@@ -1846,17 +1871,17 @@ impl TryType56 {
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<TryType56>() == 16, "TryType56 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType58>() == 16, "TryType58 size mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::align_of::<TryType56>() == 8, "TryType56 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType58>() == 8, "TryType58 alignment mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::offset_of!(TryType56, tag) == 8, "TryType56 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType58, tag) == 8, "TryType58 tag offset mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<TryType56>() == 8, "TryType56 size mismatch");
+const _: () = assert!(core::mem::size_of::<TryType58>() == 8, "TryType58 size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<TryType56>() == 4, "TryType56 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<TryType58>() == 4, "TryType58 alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::offset_of!(TryType56, tag) == 4, "TryType56 tag offset mismatch");
+const _: () = assert!(core::mem::offset_of!(TryType58, tag) == 4, "TryType58 tag offset mismatch");
 
 /// Tag discriminant for Try.
 #[repr(u8)]
@@ -1933,20 +1958,20 @@ pub type InitForHostEffectsTcpSend = AnonStruct3b1714e0f1aad535;
 pub type InitForHostEffectsWriteToFile = AnonStructBba21047290b1d3a;
 pub type EffectTcpSend = AnonStruct3b1714e0f1aad535;
 pub type EffectWriteToFile = AnonStructBba21047290b1d3a;
-pub type SubscriptionsAcceptTcpConnectionResult = TryType24;
-pub type SubscriptionsAcceptTcpConnectionResultPayload = TryType24Payload;
-pub type SubscriptionsAcceptTcpConnectionResultTag = TryType24Tag;
+pub type SubscriptionsAcceptTcpConnectionResult = TryType26;
+pub type SubscriptionsAcceptTcpConnectionResultPayload = TryType26Payload;
+pub type SubscriptionsAcceptTcpConnectionResultTag = TryType26Tag;
 pub type SubscriptionsAcceptTcpConnectionOk = AnonStruct11c0d71a1110c7df;
-pub type SubscriptionsStdinResult = TryType33;
-pub type SubscriptionsStdinResultPayload = TryType33Payload;
-pub type SubscriptionsStdinResultTag = TryType33Tag;
-pub type SubscriptionsTcpConnectResult = TryType47;
-pub type SubscriptionsTcpConnectResultPayload = TryType47Payload;
-pub type SubscriptionsTcpConnectResultTag = TryType47Tag;
+pub type SubscriptionsStdinResult = TryType35;
+pub type SubscriptionsStdinResultPayload = TryType35Payload;
+pub type SubscriptionsStdinResultTag = TryType35Tag;
+pub type SubscriptionsTcpConnectResult = TryType49;
+pub type SubscriptionsTcpConnectResultPayload = TryType49Payload;
+pub type SubscriptionsTcpConnectResultTag = TryType49Tag;
 pub type SubscriptionsTcpConnectOk = AnonStruct3662079be59957c3;
-pub type SubscriptionsTcpReceiveResult = TryType56;
-pub type SubscriptionsTcpReceiveResultPayload = TryType56Payload;
-pub type SubscriptionsTcpReceiveResultTag = TryType56Tag;
+pub type SubscriptionsTcpReceiveResult = TryType58;
+pub type SubscriptionsTcpReceiveResultPayload = TryType58Payload;
+pub type SubscriptionsTcpReceiveResultTag = TryType58Tag;
 pub type UpdateForHost = AnonStruct3a8854a0aa6a1ebb;
 pub type UpdateForHostEffects = Effect;
 pub type UpdateForHostEffectsPayload = EffectPayload;
@@ -1957,6 +1982,29 @@ pub type UpdateForHostEffectsWriteToFile = AnonStructBba21047290b1d3a;
 // Generated Refcount Helpers
 
 impl AnonStruct57e411f048803101 {
+    /// Recursively decrement Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must own one live Roc reference for each refcounted field.
+    pub unsafe fn decref(self, roc_host: &RocHost) {
+        let value = self;
+        let _ = value;
+        let _ = roc_host;
+    }
+
+    /// Increment Roc-owned fields.
+    ///
+    /// # Safety
+    /// `self` must point at live Roc allocations. The retained references must
+    /// be balanced by later decrefs.
+    pub unsafe fn incref(self, amount: isize) {
+        let value = self;
+        let _ = value;
+        let _ = amount;
+    }
+}
+
+impl Context {
     /// Recursively decrement Roc-owned fields.
     ///
     /// # Safety
@@ -2160,7 +2208,7 @@ impl Subscriptions {
     }
 }
 
-impl TryType24 {
+impl TryType26 {
     /// Recursively decrement Roc-owned payloads.
     ///
     /// # Safety
@@ -2169,8 +2217,8 @@ impl TryType24 {
         let value = self;
         let _ = roc_host;
         match value.tag {
-            TryType24Tag::Err => {},
-            TryType24Tag::Ok => {
+            TryType26Tag::Err => {},
+            TryType26Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { payload.decref(roc_host); }
             },
@@ -2186,8 +2234,8 @@ impl TryType24 {
         let value = self;
         let _ = amount;
         match value.tag {
-            TryType24Tag::Err => {},
-            TryType24Tag::Ok => {
+            TryType26Tag::Err => {},
+            TryType26Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { payload.incref(amount); }
             },
@@ -2220,7 +2268,7 @@ impl AnonStruct11c0d71a1110c7df {
     }
 }
 
-impl TryType33 {
+impl TryType35 {
     /// Recursively decrement Roc-owned payloads.
     ///
     /// # Safety
@@ -2229,8 +2277,8 @@ impl TryType33 {
         let value = self;
         let _ = roc_host;
         match value.tag {
-            TryType33Tag::Err => {},
-            TryType33Tag::Ok => {
+            TryType35Tag::Err => {},
+            TryType35Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { decref_erased_callable(payload, roc_host); }
             },
@@ -2246,8 +2294,8 @@ impl TryType33 {
         let value = self;
         let _ = amount;
         match value.tag {
-            TryType33Tag::Err => {},
-            TryType33Tag::Ok => {
+            TryType35Tag::Err => {},
+            TryType35Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { incref_erased_callable(payload, amount); }
             },
@@ -2470,7 +2518,7 @@ impl ANSISymbol {
     }
 }
 
-impl TryType47 {
+impl TryType49 {
     /// Recursively decrement Roc-owned payloads.
     ///
     /// # Safety
@@ -2479,8 +2527,8 @@ impl TryType47 {
         let value = self;
         let _ = roc_host;
         match value.tag {
-            TryType47Tag::Err => {},
-            TryType47Tag::Ok => {
+            TryType49Tag::Err => {},
+            TryType49Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { payload.decref(roc_host); }
             },
@@ -2496,8 +2544,8 @@ impl TryType47 {
         let value = self;
         let _ = amount;
         match value.tag {
-            TryType47Tag::Err => {},
-            TryType47Tag::Ok => {
+            TryType49Tag::Err => {},
+            TryType49Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { payload.incref(amount); }
             },
@@ -2530,7 +2578,7 @@ impl AnonStruct3662079be59957c3 {
     }
 }
 
-impl TryType56 {
+impl TryType58 {
     /// Recursively decrement Roc-owned payloads.
     ///
     /// # Safety
@@ -2539,8 +2587,8 @@ impl TryType56 {
         let value = self;
         let _ = roc_host;
         match value.tag {
-            TryType56Tag::Err => {},
-            TryType56Tag::Ok => {
+            TryType58Tag::Err => {},
+            TryType58Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { decref_erased_callable(payload, roc_host); }
             },
@@ -2556,8 +2604,8 @@ impl TryType56 {
         let value = self;
         let _ = amount;
         match value.tag {
-            TryType56Tag::Err => {},
-            TryType56Tag::Ok => {
+            TryType58Tag::Err => {},
+            TryType58Tag::Ok => {
                 let payload = value.payload_ok();
                 unsafe { incref_erased_callable(payload, amount); }
             },
@@ -2781,10 +2829,10 @@ pub fn make_roc_host(env: *mut c_void) -> RocHost {
 #[allow(improper_ctypes)]
 unsafe extern "C" {
     /// Entrypoint: init_for_host
-    pub fn roc_init(arg0: RocList<RocStr>) -> AnonStruct3a8854a0aa6a1ebb;
+    pub fn roc_init(arg0: Context, arg1: RocList<RocStr>) -> AnonStruct3a8854a0aa6a1ebb;
 
     /// Entrypoint: update_for_host
-    pub fn roc_update(arg0: RocBox, arg1: RocBox) -> AnonStruct3a8854a0aa6a1ebb;
+    pub fn roc_update(arg0: Context, arg1: RocBox, arg2: RocBox) -> AnonStruct3a8854a0aa6a1ebb;
 
     /// Entrypoint: view_for_host
     pub fn roc_view(arg0: TerminalSettings, arg1: RocBox) -> ViewForHostResult;

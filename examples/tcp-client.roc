@@ -9,6 +9,7 @@ import pf.Subscriptions
 import pf.Effect
 import pf.Terminal
 import pf.TcpStream
+import pf.Context
 import ansi.ANSI
 
 application = {
@@ -37,8 +38,8 @@ server_address = "127.0.0.1"
 server_port : U16
 server_port = 8080.U16
 
-init : List(Str) -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
-init = |_args| {
+init : Context, List(Str) -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
+init = |_ctx, _args| {
     m = {
         connection: NotConnected,
         messages: [],
@@ -58,8 +59,8 @@ init = |_args| {
     { m, sub, effects: [] }
 }
 
-update : Model, Event -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
-update = |model, event| {
+update : Context, Model, Event -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
+update = |_ctx, model, event| {
     match event {
         ServerConnected(stream) => {
             new_model = { ..model,

@@ -9,6 +9,7 @@ import pf.Subscriptions
 import pf.Effect
 import pf.Terminal
 import pf.TcpStream
+import pf.Context
 
 application = {
     init: init,
@@ -48,15 +49,15 @@ subs = Subscriptions.{
     tcp_receive: Ok(Box.box(|stream, data| MessageReceived(stream, data))),
 }
 
-init : List(Str) -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
-init = |_args| {
+init : Context, List(Str) -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
+init = |_ctx, _args| {
     m: { clients: [], log: [] },
     sub: subs,
     effects: [],
 }
 
-update : Model, Event -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
-update = |model, event| {
+update : Context, Model, Event -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }
+update = |_ctx, model, event| {
     match event {
         ClientConnected(stream) => {
             new_model = { ..model,

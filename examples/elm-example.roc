@@ -8,6 +8,7 @@ import pf.TerminalSettings
 import pf.Subscriptions
 import pf.Effect
 import pf.Terminal
+import pf.Context
 import ansi.ANSI
 
 application = {
@@ -25,8 +26,8 @@ Event : [
     UserTyped(ANSI.Input),
 ]
 
-init : List(Str) -> { m: Model, sub: Subscriptions, effects: List(Effect) }
-init = |_args| {
+init : Context, List(Str) -> { m: Model, sub: Subscriptions, effects: List(Effect) }
+init = |_ctx, _args| {
     m: { name: "Test WattApp", cursorPos: 0 },
     sub: Subscriptions.{
         stdin: Ok(Box.box(input_to_event)),
@@ -37,8 +38,8 @@ init = |_args| {
     effects: [],
 }
 
-update : Model, Event -> { m: Model, sub: Subscriptions, effects: List(Effect) }
-update = |model, event| {
+update : Context, Model, Event -> { m: Model, sub: Subscriptions, effects: List(Effect) }
+update = |_ctx, model, event| {
     (quit, new_model) = match (event) {
         UserTyped(Ctrl(C)) => (Bool.True, { name: "", cursorPos: 0 }),
         UserTyped(Arrow(Up)) => (Bool.False, { name: model.name, cursorPos: model.cursorPos - 1 }),

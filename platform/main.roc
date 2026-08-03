@@ -3,12 +3,12 @@
 platform ""
 	requires {
         [Model : model, Event : event] for application : {
-                init : List(Str) -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
-                update : model, event -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
+                init : Context, List(Str) -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
+                update : Context, model, event -> { m: model, sub: Subscriptions(event), effects: List(Effect) },
                 view : TerminalSettings, model -> [RawMode(List(List(Terminal))), Nothing]
             }
 	}
-	exposes [Effect, Subscriptions, TerminalSettings, Terminal, TcpStream]
+	exposes [Effect, Subscriptions, TerminalSettings, Terminal, TcpStream, Context]
 	packages {
 		# HTTP data types (Method, Request, Response) come from the shared
 		# roc-lang/http package so apps and other packages using it see the same
@@ -47,22 +47,23 @@ import Subscriptions
 import Effect
 import Terminal
 import TcpStream
+import Context
 import ansi.ANSI
 
-init_for_host : List(Str) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
-init_for_host = |args| {
+init_for_host : Context, List(Str) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
+init_for_host = |ctx, args| {
     init_fn = application.init
-    result = init_fn(args)
+    result = init_fn(ctx, args)
     boxed_model = Box.box(result.m)
     { m: boxed_model, sub: result.sub, effects: result.effects }
 }
 
-update_for_host : Box(Model), Box(Event) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
-update_for_host = |boxed_model, boxed_event| {
+update_for_host : Context, Box(Model), Box(Event) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
+update_for_host = |ctx, boxed_model, boxed_event| {
     model = Box.unbox(boxed_model)
     event = Box.unbox(boxed_event)
     update_fn = application.update
-    res = update_fn(model, event)
+    res = update_fn(ctx, model, event)
     { m: Box.box(res.m), sub: res.sub, effects: res.effects }
 }
 

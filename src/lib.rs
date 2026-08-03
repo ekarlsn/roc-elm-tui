@@ -280,6 +280,26 @@ fn start_tcp_client(address: &str, port: u16) -> Option<TcpState> {
 }
 
 // ---------------------------------------------------------------------------
+// Time utilities
+// ---------------------------------------------------------------------------
+
+/// Get the current time as nanoseconds since UNIX epoch
+fn get_current_time_nanos() -> u128 {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    match SystemTime::now().duration_since(UNIX_EPOCH) {
+        Ok(duration) => duration.as_nanos(),
+        Err(_) => 0, // Should not happen unless system clock is before 1970
+    }
+}
+
+/// Create a Context with the current time
+fn make_context() -> Context {
+    Context {
+        now_nanos: get_current_time_nanos(),
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
 
@@ -315,7 +335,8 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32
         height: rows as u64,
     };
 
-    let result = unsafe { roc_init(RocList::<RocStr>::empty()) };
+    let ctx = make_context();
+    let result = unsafe { roc_init(ctx, RocList::<RocStr>::empty()) };
     let init_effects = result.effects;
     let mut current_model = result.m;
     let mut current_subs = result.sub;
@@ -356,7 +377,8 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32
             }
         };
 
-        let update_result = unsafe { roc_update(current_model, event) };
+        let ctx = make_context();
+        let update_result = unsafe { roc_update(ctx, current_model, event) };
         if let Some(code) = handle_effects(update_result.effects.as_slice(), &mut tcp, &roc_host) {
             cleanup_terminal(&mut stdout);
             return Ok(code as i32);
@@ -382,13 +404,13 @@ fn init_tcp_from_subs(subs: &Subscriptions) -> Option<TcpState> {
 
     // Try tcp_connect (client mode)
     match subs.tcp_connect.tag {
-        TryType47Tag::Ok => {
+        TryType49Tag::Ok => {
             let p = subs.tcp_connect.payload_ok();
             let address = p.address.as_str().to_owned();
             let port = p.port;
             return start_tcp_client(&address, port);
         }
-        TryType47Tag::Err => {}
+        TryType49Tag::Err => {}
     }
 
     None
@@ -505,11 +527,11 @@ fn tcp_connected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_void>
 
     // Try tcp_connect (client mode)
     match subs.tcp_connect.tag {
-        TryType47Tag::Ok => {
+        TryType49Tag::Ok => {
             let p = subs.tcp_connect.payload_ok();
             return Some(unsafe { make_event_from_tcp_connected(p.on_connected, id) });
         }
-        TryType47Tag::Err => {}
+        TryType49Tag::Err => {}
     }
 
     None
@@ -527,11 +549,11 @@ fn tcp_disconnected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_vo
 
     // Try tcp_connect (client mode)
     match subs.tcp_connect.tag {
-        TryType47Tag::Ok => {
+        TryType49Tag::Ok => {
             let p = subs.tcp_connect.payload_ok();
             return Some(unsafe { make_event_from_tcp_disconnected(p.on_disconnected, id) });
         }
-        TryType47Tag::Err => {}
+        TryType49Tag::Err => {}
     }
 
     None
