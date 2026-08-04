@@ -2,14 +2,15 @@
 ## broadcast back to ALL currently connected clients.
 app [ Model, Event, application ] {
     pf: platform "../platform/main.roc",
+    platform_pack: "../package/main.roc"
 }
 
-import pf.TerminalSettings
-import pf.Subscriptions
-import pf.Effect
-import pf.Terminal
-import pf.TcpStream
-import pf.Context
+import platform_pack.TerminalSettings
+import platform_pack.Subscriptions
+import platform_pack.Effect
+import platform_pack.Terminal
+import platform_pack.TcpStream
+import platform_pack.Context
 
 application = {
     init: init,

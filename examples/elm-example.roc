@@ -2,14 +2,15 @@
 app [ Model, Event, application ] {
     pf: platform "../platform/main.roc",
     ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst",
+	platform_pack: "../package/main.roc"
 }
 
-import pf.TerminalSettings
-import pf.Subscriptions
-import pf.Effect
-import pf.Terminal
-import pf.Context
 import ansi.ANSI
+import platform_pack.Context
+import platform_pack.Terminal
+import platform_pack.TerminalSettings
+import platform_pack.Subscriptions
+import platform_pack.Effect
 
 application = {
     init : init,

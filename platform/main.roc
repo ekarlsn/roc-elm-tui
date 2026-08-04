@@ -1,5 +1,3 @@
-## A native command-line platform with filesystem, process, network, terminal,
-## SQLite, environment, random, and UTC effects.
 platform ""
 	requires {
         [Model : model, Event : event] for application : {
@@ -8,16 +6,10 @@ platform ""
                 view : TerminalSettings, model -> [RawMode(List(List(Terminal))), Nothing]
             }
 	}
-	exposes [Effect, Subscriptions, TerminalSettings, Terminal, TcpStream, Context]
+	exposes []
 	packages {
-		# HTTP data types (Method, Request, Response) come from the shared
-		# roc-lang/http package so apps and other packages using it see the same
-		# nominal types. The platform supplies only the effectful `Http.send!`.
-		http: "https://github.com/roc-lang/http/releases/download/1.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
-		# ANSI input parsing (parse_raw_stdin) and escape sequences.
-		# Apps that handle stdin events must also declare this package at the same URL
-		# so that ANSI.Input resolves to the same nominal type on both sides.
 		ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst",
+		platform_pack: "../package/main.roc"
 	}
 	provides { # Rust calling Roc
         "roc_init": init_for_host,
@@ -42,12 +34,12 @@ platform ""
 		arm64musl: { inputs: ["crt1.o", "libhost.a", "libunwind.a", app, "libc.a"] },
 	}
 
-import TerminalSettings
-import Subscriptions
-import Effect
-import Terminal
-import TcpStream
-import Context
+import platform_pack.TerminalSettings
+import platform_pack.Subscriptions
+import platform_pack.Effect
+import platform_pack.Terminal
+import platform_pack.TcpStream
+import platform_pack.Context
 import ansi.ANSI
 
 init_for_host : Context, List(Str) -> { m: Box(Model), sub: Subscriptions, effects: List(Effect) }
