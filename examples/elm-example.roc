@@ -21,15 +21,17 @@ application = {
 Model : {
 	name : Str,
 	cursorPos : U16,
+	timer: U64,
 }
 
 Event : [
+    TimerFired,
     UserTyped(ANSI.Input),
 ]
 
 init : Context, List(Str) -> { m: Model, sub: Subscriptions, effects: List(Effect) }
-init = |_ctx, _args| {
-    m: { name: "Test WattApp", cursorPos: 0 },
+init = |ctx, _args| {
+    m: { name: "Test WattApp", cursorPos: 0, timer: ctx.now_nanos + 1_000_000_000 },
     sub: Subscriptions.{
         stdin: Ok(Box.box(input_to_event)),
         accept_tcp_connection: Err(NotSubscribed),
@@ -41,12 +43,14 @@ init = |_ctx, _args| {
 }
 
 update : Context, Model, Event -> { m: Model, sub: Subscriptions, effects: List(Effect) }
-update = |_ctx, model, event| {
+update = |ctx, model, event| {
+    now = ctx.now_nanos
     (quit, new_model) = match (event) {
-        UserTyped(Ctrl(C)) => (Bool.True, { name: "", cursorPos: 0 }),
-        UserTyped(Arrow(Up)) => (Bool.False, { name: model.name, cursorPos: model.cursorPos - 1 }),
-        UserTyped(Arrow(Down)) => (Bool.False, { name: model.name, cursorPos: model.cursorPos + 1 }),
-        UserTyped(input) => (Bool.False, { name: ANSI.input_to_str(input), cursorPos: 2 }),
+        UserTyped(Ctrl(C)) => (Bool.True, model),
+        UserTyped(Arrow(Up)) => (Bool.False, { ..model, cursorPos: model.cursorPos - 1 }),
+        UserTyped(Arrow(Down)) => (Bool.False, { ..model, cursorPos: model.cursorPos + 1 }),
+        UserTyped(input) => (Bool.False, { ..model, name: ANSI.input_to_str(input), cursorPos: 2 }),
+        TimerFired => (Bool.False, { ..model, name: "Pew!", timer: now + 1_000_000_000 }),
     }
     {
         m: new_model,
@@ -58,12 +62,15 @@ update = |_ctx, model, event| {
                 accept_tcp_connection: Err(NotSubscribed),
                 tcp_connect: Err(NotSubscribed),
                 tcp_receive: Err(NotSubscribed),
-                timer: Err(NotSubscribed),
+                timer: Ok({ fire_at: new_model.timer, on_fire: Box.box(timer_to_event) }),
             }
         },
         effects: [],
     }
 }
+
+timer_to_event : U64 -> Event
+timer_to_event = |_| TimerFired
 
 input_to_event : ANSI.Input -> Event
 input_to_event = |input| UserTyped(input)

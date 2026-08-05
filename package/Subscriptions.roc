@@ -16,7 +16,7 @@ Subscriptions(event) := {
         on_disconnected: Box(TcpStream -> event),
     }, [NotSubscribed]),
     tcp_receive : Try(Box((TcpStream, List(U8) -> event)), [NotSubscribed]),
-    timer : Try({ fire_at: U64, on_fire: Box(U64 -> event) }, [NotSubscribed]),
+    timer : Try({ fire_at: U64, on_fire: Box(event) }, [NotSubscribed]),
 }.{
     none : Subscriptions(a)
     none = {

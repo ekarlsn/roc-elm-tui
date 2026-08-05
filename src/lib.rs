@@ -318,17 +318,6 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32
     _ = terminal::enable_raw_mode();
     _ = stdout.execute(terminal::Clear(terminal::ClearType::All));
 
-    // Decorative border
-    for y in 0..40 {
-        for x in 0..150 {
-            if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-                stdout
-                    .execute(cursor::MoveTo(x, y))?
-                    .execute(crossterm::style::PrintStyledContent("█".magenta()))?;
-            }
-        }
-    }
-
     let (columns, rows) = terminal::size().unwrap();
     let terminal_settings = TerminalSettings {
         width: columns as u64,
@@ -476,7 +465,7 @@ fn wait_for_next_event(
                 0 // Timer already fired
             } else {
                 let delta_nanos = fire_at - now;
-                let delta_ms = (delta_nanos / 1_000_000).min(i32::MAX as u128) as i32;
+                let delta_ms = (delta_nanos / 1_000_000).min(i32::MAX as u64) as i32;
                 delta_ms
             }
         } else {

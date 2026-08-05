@@ -111,7 +111,7 @@ make_event_from_tcp_receive = |boxed_fn, stream_id, data| {
     Box.box(fn(TcpStream.new(stream_id), data))
 }
 
-make_event_from_timer : Box(U64 -> Event), U64 -> Box(Event)
+make_event_from_timer : Box(Event) -> Box(Event)
 make_event_from_timer = |boxed_fn, value| {
     fn = Box.unbox(boxed_fn)
     Box.box(fn(value))
