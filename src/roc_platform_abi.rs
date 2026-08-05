@@ -1156,32 +1156,32 @@ const _: () = assert!(core::mem::size_of::<AnonStruct3662079be59957c3>() == 24, 
 #[cfg(target_pointer_width = "32")]
 const _: () = assert!(core::mem::align_of::<AnonStruct3662079be59957c3>() == 4, "AnonStruct3662079be59957c3 alignment mismatch");
 
-/// Element type for __AnonStruct_7be4bf3a1d01a2c9
+/// Element type for __AnonStruct_49e84beb0bd7e48f
 #[cfg(target_pointer_width = "32")]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct AnonStruct7be4bf3a1d01a2c9 {
+pub struct AnonStruct49e84beb0bd7e48f {
     pub fire_at: u64,
-    pub on_fire: RocErasedCallable,
+    pub on_fire: RocBox,
 }
 
-/// Element type for __AnonStruct_7be4bf3a1d01a2c9
+/// Element type for __AnonStruct_49e84beb0bd7e48f
 #[cfg(not(target_pointer_width = "32"))]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct AnonStruct7be4bf3a1d01a2c9 {
+pub struct AnonStruct49e84beb0bd7e48f {
     pub fire_at: u64,
-    pub on_fire: RocErasedCallable,
+    pub on_fire: RocBox,
 }
 
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::size_of::<AnonStruct7be4bf3a1d01a2c9>() == 16, "AnonStruct7be4bf3a1d01a2c9 size mismatch");
+const _: () = assert!(core::mem::size_of::<AnonStruct49e84beb0bd7e48f>() == 16, "AnonStruct49e84beb0bd7e48f size mismatch");
 #[cfg(target_pointer_width = "64")]
-const _: () = assert!(core::mem::align_of::<AnonStruct7be4bf3a1d01a2c9>() == 8, "AnonStruct7be4bf3a1d01a2c9 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<AnonStruct49e84beb0bd7e48f>() == 8, "AnonStruct49e84beb0bd7e48f alignment mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::size_of::<AnonStruct7be4bf3a1d01a2c9>() == 16, "AnonStruct7be4bf3a1d01a2c9 size mismatch");
+const _: () = assert!(core::mem::size_of::<AnonStruct49e84beb0bd7e48f>() == 16, "AnonStruct49e84beb0bd7e48f size mismatch");
 #[cfg(target_pointer_width = "32")]
-const _: () = assert!(core::mem::align_of::<AnonStruct7be4bf3a1d01a2c9>() == 8, "AnonStruct7be4bf3a1d01a2c9 alignment mismatch");
+const _: () = assert!(core::mem::align_of::<AnonStruct49e84beb0bd7e48f>() == 8, "AnonStruct49e84beb0bd7e48f alignment mismatch");
 
 /// Element type for TerminalSettings
 #[cfg(target_pointer_width = "32")]
@@ -1924,7 +1924,7 @@ pub enum TryType69Tag {
 #[derive(Clone, Copy)]
 pub union TryType69Payload {
     pub err: [u8; 0],
-    pub ok: core::mem::ManuallyDrop<AnonStruct7be4bf3a1d01a2c9>,
+    pub ok: core::mem::ManuallyDrop<AnonStruct49e84beb0bd7e48f>,
 }
 
 #[cfg(target_pointer_width = "32")]
@@ -1953,12 +1953,12 @@ pub struct TryType69 {
 
 impl TryType69 {
     #[cfg(target_pointer_width = "32")]
-    pub fn payload_ok(&self) -> AnonStruct7be4bf3a1d01a2c9 {
-        unsafe { core::ptr::read(self.payload.as_ptr() as *const AnonStruct7be4bf3a1d01a2c9) }
+    pub fn payload_ok(&self) -> AnonStruct49e84beb0bd7e48f {
+        unsafe { core::ptr::read(self.payload.as_ptr() as *const AnonStruct49e84beb0bd7e48f) }
     }
 
     #[cfg(not(target_pointer_width = "32"))]
-    pub fn payload_ok(&self) -> AnonStruct7be4bf3a1d01a2c9 {
+    pub fn payload_ok(&self) -> AnonStruct49e84beb0bd7e48f {
         unsafe { core::mem::ManuallyDrop::into_inner(self.payload.ok) }
     }
 
@@ -2048,7 +2048,7 @@ pub type InitForHost = AnonStruct9feff2174aec4818;
 pub type SubscriptionsTimerResult = TryType69;
 pub type SubscriptionsTimerResultPayload = TryType69Payload;
 pub type SubscriptionsTimerResultTag = TryType69Tag;
-pub type SubscriptionsTimerOk = AnonStruct7be4bf3a1d01a2c9;
+pub type SubscriptionsTimerOk = AnonStruct49e84beb0bd7e48f;
 pub type SubscriptionsAcceptTcpConnectionResult = TryType25;
 pub type SubscriptionsAcceptTcpConnectionResultPayload = TryType25Payload;
 pub type SubscriptionsAcceptTcpConnectionResultTag = TryType25Tag;
@@ -2748,14 +2748,14 @@ impl TryType69 {
     }
 }
 
-impl AnonStruct7be4bf3a1d01a2c9 {
+impl AnonStruct49e84beb0bd7e48f {
     /// Recursively decrement Roc-owned fields.
     ///
     /// # Safety
     /// `self` must own one live Roc reference for each refcounted field.
     pub unsafe fn decref(self, roc_host: &RocHost) {
         let value = self;
-        unsafe { decref_erased_callable(value.on_fire, roc_host); }
+        unsafe { decref_box(value.on_fire as RocBox, roc_host); }
     }
 
     /// Increment Roc-owned fields.
@@ -2765,7 +2765,7 @@ impl AnonStruct7be4bf3a1d01a2c9 {
     /// be balanced by later decrefs.
     pub unsafe fn incref(self, amount: isize) {
         let value = self;
-        unsafe { incref_erased_callable(value.on_fire, amount); }
+        unsafe { incref_box(value.on_fire as RocBox, amount); }
     }
 }
 
@@ -3007,8 +3007,5 @@ unsafe extern "C" {
 
     /// Entrypoint: make_event_from_tcp_receive
     pub fn make_event_from_tcp_receive(arg0: RocErasedCallable, arg1: u64, arg2: RocListWith<u8, false>) -> RocBox;
-
-    /// Entrypoint: make_event_from_timer
-    pub fn make_event_from_timer(arg0: RocErasedCallable, arg1: u64) -> RocBox;
 
 }

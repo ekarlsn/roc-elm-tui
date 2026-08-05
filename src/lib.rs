@@ -11,7 +11,7 @@ use std::sync::{
     mpsc,
 };
 
-use crossterm::{cursor, style::Stylize, terminal, ExecutableCommand};
+use crossterm::{cursor, terminal, ExecutableCommand};
 
 mod roc_platform_abi;
 use crate::roc_platform_abi::*;
@@ -602,8 +602,7 @@ fn timer_fire_event(subs: &Subscriptions) -> Option<*mut c_void> {
     match subs.timer.tag {
         SubscriptionsTimerResultTag::Ok => {
             let timer_payload = unsafe { subs.timer.payload.ok };
-            let closure = timer_payload.on_fire;
-            Some(unsafe { make_event_from_timer(closure, 0) })
+            Some(timer_payload.on_fire)
         }
         SubscriptionsTimerResultTag::Err => None,
     }

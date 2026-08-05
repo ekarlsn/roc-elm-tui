@@ -22,7 +22,6 @@ platform ""
         "make_event_from_tcp_connected": make_event_from_tcp_connected,
         "make_event_from_tcp_disconnected": make_event_from_tcp_disconnected,
         "make_event_from_tcp_receive": make_event_from_tcp_receive,
-        "make_event_from_timer": make_event_from_timer,
     }
 	hosted { # Roc calling Rust
 	}
@@ -109,10 +108,4 @@ make_event_from_tcp_receive : Box((TcpStream, List(U8) -> Event)), U64, List(U8)
 make_event_from_tcp_receive = |boxed_fn, stream_id, data| {
     fn = Box.unbox(boxed_fn)
     Box.box(fn(TcpStream.new(stream_id), data))
-}
-
-make_event_from_timer : Box(Event) -> Box(Event)
-make_event_from_timer = |boxed_fn, value| {
-    fn = Box.unbox(boxed_fn)
-    Box.box(fn(value))
 }
