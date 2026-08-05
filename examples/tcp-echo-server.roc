@@ -48,6 +48,7 @@ subs = Subscriptions.{
     }),
     tcp_connect: Err(NotSubscribed),
     tcp_receive: Ok(Box.box(|stream, data| MessageReceived(stream, data))),
+    timer: Err(NotSubscribed),
 }
 
 init : Context, List(Str) -> { m: Model, sub: Subscriptions(Event), effects: List(Effect) }

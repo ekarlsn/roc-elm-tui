@@ -35,6 +35,7 @@ init = |_ctx, _args| {
         accept_tcp_connection: Err(NotSubscribed),
         tcp_connect: Err(NotSubscribed),
         tcp_receive: Err(NotSubscribed),
+        timer: Err(NotSubscribed),
     },
     effects: [],
 }
@@ -57,6 +58,7 @@ update = |_ctx, model, event| {
                 accept_tcp_connection: Err(NotSubscribed),
                 tcp_connect: Err(NotSubscribed),
                 tcp_receive: Err(NotSubscribed),
+                timer: Err(NotSubscribed),
             }
         },
         effects: [],

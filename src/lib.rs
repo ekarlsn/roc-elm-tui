@@ -283,11 +283,11 @@ fn start_tcp_client(address: &str, port: u16) -> Option<TcpState> {
 // Time utilities
 // ---------------------------------------------------------------------------
 
-/// Get the current time as nanoseconds since UNIX epoch
-fn get_current_time_nanos() -> u128 {
+/// Get the current time as nanoseconds since UNIX epoch (truncated to U64)
+fn get_current_time_nanos() -> u64 {
     use std::time::{SystemTime, UNIX_EPOCH};
     match SystemTime::now().duration_since(UNIX_EPOCH) {
-        Ok(duration) => duration.as_nanos(),
+        Ok(duration) => duration.as_nanos() as u64, // Truncate to U64 due to compiler bug with U128
         Err(_) => 0, // Should not happen unless system clock is before 1970
     }
 }
@@ -404,13 +404,13 @@ fn init_tcp_from_subs(subs: &Subscriptions) -> Option<TcpState> {
 
     // Try tcp_connect (client mode)
     match subs.tcp_connect.tag {
-        TryType49Tag::Ok => {
+        TryType50Tag::Ok => {
             let p = subs.tcp_connect.payload_ok();
             let address = p.address.as_str().to_owned();
             let port = p.port;
             return start_tcp_client(&address, port);
         }
-        TryType49Tag::Err => {}
+        TryType50Tag::Err => {}
     }
 
     None
@@ -427,8 +427,9 @@ fn wait_for_next_event(
 ) -> Option<*mut c_void> {
     let has_stdin = matches!(subs.stdin.tag, SubscriptionsStdinResultTag::Ok);
     let has_tcp = tcp.is_some();
+    let has_timer = matches!(subs.timer.tag, SubscriptionsTimerResultTag::Ok);
 
-    if !has_stdin && !has_tcp {
+    if !has_stdin && !has_tcp && !has_timer {
         return None;
     }
 
@@ -456,9 +457,41 @@ fn wait_for_next_event(
     let tcp_fd_idx = if has_stdin { 1 } else { 0 };
 
     loop {
-        let ret = unsafe { libc::poll(poll_fds.as_mut_ptr(), poll_fds.len() as _, -1) };
+        // Check if timer has fired
+        if has_timer {
+            let timer_payload = unsafe { subs.timer.payload.ok };
+            let fire_at = timer_payload.fire_at;
+            let now = get_current_time_nanos();
+            if now >= fire_at {
+                return timer_fire_event(subs);
+            }
+        }
+
+        // Calculate timeout for poll: if timer is active, poll with timeout
+        let timeout_ms = if has_timer {
+            let timer_payload = unsafe { subs.timer.payload.ok };
+            let fire_at = timer_payload.fire_at;
+            let now = get_current_time_nanos();
+            if now >= fire_at {
+                0 // Timer already fired
+            } else {
+                let delta_nanos = fire_at - now;
+                let delta_ms = (delta_nanos / 1_000_000).min(i32::MAX as u128) as i32;
+                delta_ms
+            }
+        } else {
+            -1 // Infinite timeout
+        };
+
+        let ret = unsafe { libc::poll(poll_fds.as_mut_ptr(), poll_fds.len() as _, timeout_ms) };
         if ret < 0 {
             return None;
+        }
+
+        // --- Timer timeout ---
+        if ret == 0 && has_timer {
+            // Poll timed out, which means timer should fire
+            return timer_fire_event(subs);
         }
 
         // --- TCP notification pipe ---
@@ -527,11 +560,11 @@ fn tcp_connected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_void>
 
     // Try tcp_connect (client mode)
     match subs.tcp_connect.tag {
-        TryType49Tag::Ok => {
+        TryType50Tag::Ok => {
             let p = subs.tcp_connect.payload_ok();
             return Some(unsafe { make_event_from_tcp_connected(p.on_connected, id) });
         }
-        TryType49Tag::Err => {}
+        TryType50Tag::Err => {}
     }
 
     None
@@ -549,11 +582,11 @@ fn tcp_disconnected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_vo
 
     // Try tcp_connect (client mode)
     match subs.tcp_connect.tag {
-        TryType49Tag::Ok => {
+        TryType50Tag::Ok => {
             let p = subs.tcp_connect.payload_ok();
             return Some(unsafe { make_event_from_tcp_disconnected(p.on_disconnected, id) });
         }
-        TryType49Tag::Err => {}
+        TryType50Tag::Err => {}
     }
 
     None
@@ -573,6 +606,17 @@ fn tcp_receive_roc_event(
             Some(unsafe { make_event_from_tcp_receive(closure, id, roc_data) })
         }
         SubscriptionsTcpReceiveResultTag::Err => None,
+    }
+}
+
+fn timer_fire_event(subs: &Subscriptions) -> Option<*mut c_void> {
+    match subs.timer.tag {
+        SubscriptionsTimerResultTag::Ok => {
+            let timer_payload = unsafe { subs.timer.payload.ok };
+            let closure = timer_payload.on_fire;
+            Some(unsafe { make_event_from_timer(closure, 0) })
+        }
+        SubscriptionsTimerResultTag::Err => None,
     }
 }
 

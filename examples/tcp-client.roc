@@ -56,6 +56,7 @@ init = |_ctx, _args| {
             on_disconnected: Box.box(|stream| ServerDisconnected(stream)),
         }),
         tcp_receive: Ok(Box.box(|stream, data| MessageReceived(stream, data))),
+        timer: Err(NotSubscribed),
     }
     { m, sub, effects: [] }
 }
@@ -127,6 +128,7 @@ get_subs = |_model| {
             on_disconnected: Box.box(|stream| ServerDisconnected(stream)),
         }),
         tcp_receive: Ok(Box.box(|stream, data| MessageReceived(stream, data))),
+        timer: Err(NotSubscribed),
     }
 }
 
