@@ -21,7 +21,6 @@ Model : {
 }
 
 Event : [
-	TimerFired,
 	UserTyped(ANSI.Input),
 ]
 
@@ -39,14 +38,12 @@ init = |ctx, _args| {
 }
 
 update : Context, Model, Event -> { m : Model, sub : Subscriptions, effects : List(Effect) }
-update = |ctx, model, event| {
-	now = ctx.now_nanos
+update = |_ctx, model, event| {
 	(quit, new_model) = match (event) {
 		UserTyped(Ctrl(C)) => (Bool.True, model)
 		UserTyped(Arrow(Up)) => (Bool.False, { ..model, cursorPos: model.cursorPos - 1 })
 		UserTyped(Arrow(Down)) => (Bool.False, { ..model, cursorPos: model.cursorPos + 1 })
 		UserTyped(input) => (Bool.False, { ..model, name: ANSI.input_to_str(input), cursorPos: 2 })
-		TimerFired => (Bool.False, { ..model, name: "Pew!", timer: now + 1_000_000_000 })
 	}
 	{
 		m: new_model,
@@ -58,15 +55,12 @@ update = |ctx, model, event| {
 				accept_tcp_connection: Err(NotSubscribed),
 				tcp_connect: Err(NotSubscribed),
 				tcp_receive: Err(NotSubscribed),
-				timer: Ok({ fire_at: new_model.timer, on_fire: Box.box(timer_to_event) }),
+				timer: Err(NotSubscribed),
 			}
 		},
 		effects: [],
 	}
 }
-
-timer_to_event : U64 -> Event
-timer_to_event = |_| TimerFired
 
 input_to_event : ANSI.Input -> Event
 input_to_event = |input| UserTyped(input)
