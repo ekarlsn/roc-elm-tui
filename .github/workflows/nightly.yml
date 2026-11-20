@@ -106,6 +106,12 @@ jobs:
             cp -r "$dir"* "platform/targets/$target/"
           done
 
+      - name: Fetch linker inputs
+        run: |
+          for target in x64musl arm64musl; do
+            uv run scripts/linker_inputs.py --directory platform/targets/$target fetch --target $target
+          done
+
       - name: Bundle platform
         run: |
           mkdir -p dist
