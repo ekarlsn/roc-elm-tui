@@ -35,9 +35,10 @@ while IFS= read -r release_name; do
   fi
 done <<< "$release_names"
 
-latest_stable="$(
-  gh api "repos/$repository/releases/latest" --jq '.tag_name // empty' 2>/dev/null || true
-)"
+latest_stable=""
+if gh_output="$(gh api "repos/$repository/releases/latest" --jq '.tag_name // empty' 2>/dev/null)"; then
+  latest_stable="$gh_output"
+fi
 
 if [ -n "$latest_stable" ]; then
   sed "s|LATESTVERSION|$latest_stable|g" docs/index.html > "$docs_root/index.html"
