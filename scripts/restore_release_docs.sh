@@ -3,14 +3,14 @@
 set -euo pipefail
 
 docs_root="${1:?usage: restore_release_docs.sh DOCS_ROOT [DOWNLOAD_ROOT]}"
-download_root="${2:-${RUNNER_TEMP:-.release}/basic-cli-docs}"
+download_root="${2:-${RUNNER_TEMP:-.release}/roc-elm-tui-docs}"
 repository="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY must be set}"
 
 mkdir -p "$docs_root" "$download_root"
 
 release_names="$(
   gh api --paginate "repos/$repository/releases?per_page=100" \
-    --jq '.[] | select(.draft == false and (.tag_name | startswith("linker-inputs-") | not)) | .tag_name'
+    --jq '.[] | select(.draft == false) | .tag_name'
 )"
 
 while IFS= read -r release_name; do
