@@ -42,8 +42,6 @@ jobs:
             os: ubuntu-24.04
           - target: arm64musl
             os: ubuntu-24.04-arm
-          - target: x64win
-            os: windows-2025
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
