@@ -1,6 +1,6 @@
 platform ""
 	requires {
-		[Model : model, Event : event] for application : { init : Context, List(Str) -> { m : model, sub : Subscriptions(event), effects : List(Effect) }, update : Context, model, event -> { m : model, sub : Subscriptions(event), effects : List(Effect) }, view : TerminalSettings, model -> [RawMode(List(List(Terminal))), Nothing] }
+		[Model : model, Event : event] for application : Application
 	}
 	exposes [
 		Subscriptions,
@@ -9,6 +9,7 @@ platform ""
 		Terminal,
 		TerminalSettings,
 		Context,
+		Application,
 	]
 	packages {
 		ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst",
@@ -38,6 +39,7 @@ platform ""
 import TerminalSettings
 import Subscriptions
 import Effect
+import Application
 import Terminal
 import TcpStream
 import Context
