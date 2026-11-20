@@ -106,6 +106,10 @@ jobs:
             cp -r "$dir"* "platform/targets/$target/"
           done
 
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: false
+
       - name: Fetch linker inputs
         run: |
           for target in x64musl arm64musl; do
