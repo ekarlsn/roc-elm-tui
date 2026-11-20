@@ -1,12 +1,15 @@
 ## Greet a name supplied as a native command-line argument.
-app [Model, Event, application] { pf: platform "../platform/main.roc", ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst", platform_pack: "../package/main.roc" }
+app [Model, Event, application] {
+	pf: platform "../platform/main.roc",
+	ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst",
+}
 
 import ansi.ANSI
-import platform_pack.Context
-import platform_pack.Terminal
-import platform_pack.TerminalSettings
-import platform_pack.Subscriptions
-import platform_pack.Effect
+import pf.Context
+import pf.Terminal
+import pf.TerminalSettings
+import pf.Subscriptions
+import pf.Effect
 
 application = {
 	init: init,

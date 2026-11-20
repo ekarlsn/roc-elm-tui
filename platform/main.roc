@@ -2,8 +2,17 @@ platform ""
 	requires {
 		[Model : model, Event : event] for application : { init : Context, List(Str) -> { m : model, sub : Subscriptions(event), effects : List(Effect) }, update : Context, model, event -> { m : model, sub : Subscriptions(event), effects : List(Effect) }, view : TerminalSettings, model -> [RawMode(List(List(Terminal))), Nothing] }
 	}
-	exposes []
-	packages { ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst", platform_pack: "../package/main.roc" }
+	exposes [
+		Subscriptions,
+		Effect,
+		TcpStream,
+		Terminal,
+		TerminalSettings,
+		Context,
+	]
+	packages {
+		ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst",
+	}
 	provides { # Rust calling Roc
 		"roc_init": init_for_host,
 		"roc_update": update_for_host,
@@ -23,16 +32,16 @@ platform ""
 		x64mac: { inputs: ["libhost.a", app] },
 		arm64mac: { inputs: ["libhost.a", app] },
 		x64win: { inputs: ["host.lib", "advapi32.lib", "bcrypt.lib", "crypt32.lib", "dbghelp.lib", "iphlpapi.lib", "kernel32.lib", "ncrypt.lib", "ntdll.lib", "ole32.lib", "secur32.lib", "shell32.lib", "user32.lib", "userenv.lib", "ws2_32.lib", app] },
-		x64musl: { inputs: ["crt1.o", "libhost.a", "libunwind.a", app, "libc.a"] },
-		arm64musl: { inputs: ["crt1.o", "libhost.a", "libunwind.a", app, "libc.a"] },
+		x64musl: { inputs: ["rcrt1.o", "libhost.a", "libunwind.a", app, "libc.a"] },
+		arm64musl: { inputs: ["rcrt1.o", "libhost.a", "libunwind.a", app, "libc.a"] },
 	}
 
-import platform_pack.TerminalSettings
-import platform_pack.Subscriptions
-import platform_pack.Effect
-import platform_pack.Terminal
-import platform_pack.TcpStream
-import platform_pack.Context
+import TerminalSettings
+import Subscriptions
+import Effect
+import Terminal
+import TcpStream
+import Context
 import ansi.ANSI
 
 init_for_host : Context, List(Str) -> { m : Box(Model), sub : Subscriptions, effects : List(Effect) }

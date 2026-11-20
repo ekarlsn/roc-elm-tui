@@ -208,7 +208,7 @@ def build_windows() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build the basic-cli platform host")
+    parser = argparse.ArgumentParser(description="Build the roc-elm-tui platform host")
     parser.add_argument(
         "--all",
         action="store_true",

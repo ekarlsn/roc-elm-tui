@@ -1,7 +1,0 @@
-# Statically linked x64musl binaries use musl's mallocng allocator directly.
-# Ignore its encoded-metadata check while retaining reports from every caller.
-{
-   musl-mallocng-enframe-uninitialised
-   Memcheck:Cond
-   fun:enframe
-}

@@ -1,0 +1,132 @@
+name: Nightly release
+
+# Builds all platform hosts, bundles the platform, and publishes (or replaces)
+# the rolling "nightly" pre-release on every push to main.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-release
+  cancel-in-progress: true
+
+# Do not add permissions here — configure them per job below.
+permissions: {}
+
+jobs:
+  rust-version:
+    name: Read Rust version
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: read
+        run: |
+          version=$(sed -n 's/^channel = "\(.*\)".*/\1/p' rust-toolchain.toml)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  build-host:
+    name: Build host (${{ matrix.target }})
+    needs: rust-version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x64mac
+            os: macos-26-intel
+          - target: arm64mac
+            os: macos-26
+          - target: x64musl
+            os: ubuntu-24.04
+          - target: arm64musl
+            os: ubuntu-24.04-arm
+          - target: x64win
+            os: windows-2025
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Zig
+        if: endsWith(matrix.target, 'musl')
+        uses: mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f
+        with:
+          version: 0.17.0
+
+      - name: Install Rust toolchain
+        shell: bash
+        run: |
+          rustup toolchain install "${{ needs.rust-version.outputs.version }}" \
+            --profile minimal \
+            --component llvm-tools-preview
+          rustup default "${{ needs.rust-version.outputs.version }}"
+
+      - name: Build host
+        shell: bash
+        run: python3 scripts/build.py --target ${{ matrix.target }}
+
+      - name: Upload host artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: host-${{ matrix.target }}
+          path: platform/targets/${{ matrix.target }}/
+          if-no-files-found: error
+          retention-days: 1
+
+  bundle-and-release:
+    name: Bundle and publish nightly release
+    needs: build-host
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: roc-lang/setup-roc@cbe782d6f165b89c87d99f50a59ac4f5f73b4427
+        with:
+          version: nightly-new-compiler
+
+      # Each artifact is downloaded into host-artifacts/host-<target>/.
+      # We then copy every artifact's contents into platform/targets/<target>/
+      # so that roc bundle sees the full set of host inputs alongside the
+      # pre-committed musl runtime libraries that live in the repo.
+      - name: Download host artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: host-*
+          path: host-artifacts
+
+      - name: Place host artifacts
+        run: |
+          for dir in host-artifacts/host-*/; do
+            target="${dir#host-artifacts/host-}"
+            target="${target%/}"
+            mkdir -p "platform/targets/$target"
+            cp -r "$dir"* "platform/targets/$target/"
+          done
+
+      - name: Bundle platform
+        run: |
+          mkdir -p dist
+          cd platform
+          cp ../THIRD_PARTY_LICENSES.md .
+          trap 'rm -f THIRD_PARTY_LICENSES.md' EXIT
+          lib_files=$(find targets -type f \( -name "*.a" -o -name "*.o" -o -name "*.lib" \) | LC_ALL=C sort)
+          # shellcheck disable=SC2086  # word-splitting on $lib_files is intentional
+          roc bundle main.roc $lib_files THIRD_PARTY_LICENSES.md --output-dir ../dist
+
+      - name: Publish nightly release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete nightly --yes 2>/dev/null || true
+          git push origin :refs/tags/nightly 2>/dev/null || true
+          gh release create nightly dist/*.tar.zst \
+            --prerelease \
+            --latest=false \
+            --target "$GITHUB_SHA" \
+            --title "nightly" \
+            --notes "Automated build from commit [\`${GITHUB_SHA:0:7}\`]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA)."

@@ -1,13 +1,17 @@
 ## TCP echo server — every message received from any client is
 ## broadcast back to ALL currently connected clients.
-app [Model, Event, application] { pf: platform "../platform/main.roc", platform_pack: "../package/main.roc" }
+app [Model, Event, application] {
+	pf: platform "../platform/main.roc",
+	ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.13.0/JXLM47L6CzrLXB5HBfqc27VnU6CD4jMm5Mk6dgbbovL.tar.zst",
+}
 
-import platform_pack.TerminalSettings
-import platform_pack.Subscriptions
-import platform_pack.Effect
-import platform_pack.Terminal
-import platform_pack.TcpStream
-import platform_pack.Context
+import ansi.ANSI
+import pf.TerminalSettings
+import pf.Subscriptions
+import pf.Effect
+import pf.Terminal
+import pf.TcpStream
+import pf.Context
 
 application = {
 	init: init,
@@ -24,6 +28,7 @@ Event : [
 	ClientConnected(TcpStream),
 	ClientDisconnected(TcpStream),
 	MessageReceived(TcpStream, List(U8)),
+	KeyPressed(ANSI.Input),
 ]
 
 listen_host : Str
@@ -36,7 +41,7 @@ listen_port = 8080.U16
 # set internally, so we always subscribe to both accept and receive.
 subs : Subscriptions(Event)
 subs = Subscriptions.{
-	stdin: Err(NotSubscribed),
+	stdin: Ok(Box.box(|input| KeyPressed(input))),
 	accept_tcp_connection: Ok({
 		host: listen_host,
 		port: listen_port,
@@ -75,6 +80,12 @@ update = |_ctx, model, event| {
 			}
 			{ m: new_model, sub: subs, effects: [] }
 		}
+
+		KeyPressed(Ctrl(C)) =>
+			{ m: model, sub: Subscriptions.none, effects: [Exit(0)] }
+
+		KeyPressed(_) =>
+			{ m: model, sub: subs, effects: [] }
 
 		MessageReceived(_, data) => {
 			# Broadcast the raw bytes back to every connected client.

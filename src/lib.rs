@@ -4,6 +4,7 @@
 
 use std::collections::HashMap;
 use std::ffi::{c_char, c_void};
+use core::ptr::NonNull;
 use std::io::{Read, Write};
 use std::os::fd::AsRawFd;
 use std::sync::{
@@ -41,7 +42,7 @@ fn roc_host_ptr() -> *mut RocHost {
 }
 
 #[no_mangle]
-pub extern "C" fn roc_alloc(length: usize, alignment: usize) -> *mut c_void {
+pub extern "C" fn roc_alloc(length: usize, alignment: usize) -> NonNull<c_void> {
     DefaultAllocators::roc_alloc(roc_host_ptr(), length, alignment)
 }
 
@@ -55,7 +56,7 @@ pub extern "C" fn roc_realloc(
     ptr: *mut c_void,
     new_length: usize,
     alignment: usize,
-) -> *mut c_void {
+) -> NonNull<c_void> {
     DefaultAllocators::roc_realloc(roc_host_ptr(), ptr, new_length, alignment)
 }
 
@@ -318,7 +319,7 @@ pub fn rust_main(_argc: i32, _argv: *const *const c_char) -> std::io::Result<i32
     _ = terminal::enable_raw_mode();
     _ = stdout.execute(terminal::Clear(terminal::ClearType::All));
 
-    let (columns, rows) = terminal::size().unwrap();
+    let (columns, rows) = terminal::size().unwrap_or((80, 24));
     let terminal_settings = TerminalSettings {
         width: columns as u64,
         height: rows as u64,
@@ -383,7 +384,7 @@ fn init_tcp_from_subs(subs: &Subscriptions) -> Option<TcpState> {
     // Try accept_tcp_connection first (server mode)
     match subs.accept_tcp_connection.tag {
         SubscriptionsAcceptTcpConnectionResultTag::Ok => {
-            let p = subs.accept_tcp_connection.payload_ok();
+            let p = unsafe { subs.accept_tcp_connection.borrow_payload_ok_unchecked() };
             let host = p.host.as_str().to_owned();
             let port = p.port;
             return start_tcp_server(&host, port);
@@ -393,13 +394,13 @@ fn init_tcp_from_subs(subs: &Subscriptions) -> Option<TcpState> {
 
     // Try tcp_connect (client mode)
     match subs.tcp_connect.tag {
-        TryType50Tag::Ok => {
-            let p = subs.tcp_connect.payload_ok();
+        SubscriptionsTcpConnectResultTag::Ok => {
+            let p = unsafe { subs.tcp_connect.borrow_payload_ok_unchecked() };
             let address = p.address.as_str().to_owned();
             let port = p.port;
             return start_tcp_client(&address, port);
         }
-        TryType50Tag::Err => {}
+        SubscriptionsTcpConnectResultTag::Err => {}
     }
 
     None
@@ -541,7 +542,7 @@ fn tcp_connected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_void>
     // Try accept_tcp_connection first (server mode)
     match subs.accept_tcp_connection.tag {
         SubscriptionsAcceptTcpConnectionResultTag::Ok => {
-            let p = subs.accept_tcp_connection.payload_ok();
+            let p = unsafe { subs.accept_tcp_connection.borrow_payload_ok_unchecked() };
             return Some(unsafe { make_event_from_tcp_connected(p.on_connected, id) });
         }
         SubscriptionsAcceptTcpConnectionResultTag::Err => {}
@@ -549,11 +550,11 @@ fn tcp_connected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_void>
 
     // Try tcp_connect (client mode)
     match subs.tcp_connect.tag {
-        TryType50Tag::Ok => {
-            let p = subs.tcp_connect.payload_ok();
+        SubscriptionsTcpConnectResultTag::Ok => {
+            let p = unsafe { subs.tcp_connect.borrow_payload_ok_unchecked() };
             return Some(unsafe { make_event_from_tcp_connected(p.on_connected, id) });
         }
-        TryType50Tag::Err => {}
+        SubscriptionsTcpConnectResultTag::Err => {}
     }
 
     None
@@ -563,7 +564,7 @@ fn tcp_disconnected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_vo
     // Try accept_tcp_connection first (server mode)
     match subs.accept_tcp_connection.tag {
         SubscriptionsAcceptTcpConnectionResultTag::Ok => {
-            let p = subs.accept_tcp_connection.payload_ok();
+            let p = unsafe { subs.accept_tcp_connection.borrow_payload_ok_unchecked() };
             return Some(unsafe { make_event_from_tcp_disconnected(p.on_disconnected, id) });
         }
         SubscriptionsAcceptTcpConnectionResultTag::Err => {}
@@ -571,11 +572,11 @@ fn tcp_disconnected_roc_event(subs: &Subscriptions, id: u64) -> Option<*mut c_vo
 
     // Try tcp_connect (client mode)
     match subs.tcp_connect.tag {
-        TryType50Tag::Ok => {
-            let p = subs.tcp_connect.payload_ok();
+        SubscriptionsTcpConnectResultTag::Ok => {
+            let p = unsafe { subs.tcp_connect.borrow_payload_ok_unchecked() };
             return Some(unsafe { make_event_from_tcp_disconnected(p.on_disconnected, id) });
         }
-        TryType50Tag::Err => {}
+        SubscriptionsTcpConnectResultTag::Err => {}
     }
 
     None
@@ -589,10 +590,10 @@ fn tcp_receive_roc_event(
 ) -> Option<*mut c_void> {
     match subs.tcp_receive.tag {
         SubscriptionsTcpReceiveResultTag::Ok => {
-            let closure = subs.tcp_receive.payload_ok();
+            let closure = unsafe { subs.tcp_receive.borrow_payload_ok_unchecked() };
             // Ownership of roc_data is transferred to Roc — no decref needed here.
             let roc_data = unsafe { RocListWith::<u8, false>::from_slice(data, roc_host) };
-            Some(unsafe { make_event_from_tcp_receive(closure, id, roc_data) })
+            Some(unsafe { make_event_from_tcp_receive(closure.clone(), id, roc_data) })
         }
         SubscriptionsTcpReceiveResultTag::Err => None,
     }
@@ -641,7 +642,7 @@ fn handle_effects(
                 );
             }
             EffectTag::TcpSend => {
-                let payload = effect.payload_tcp_send();
+                let payload = unsafe { effect.borrow_payload_tcp_send_unchecked() };
                 let stream_id = payload.stream.id;
 
                 if let Some(ref mut tcp_state) = tcp {

@@ -13,7 +13,7 @@ usage() {
     cat <<'EOF'
 Usage: ci/regenerate_glue.sh [--check]
 
-Regenerate Rust ABI bindings for the basic-cli Roc platform.
+Regenerate Rust ABI bindings for the roc-elm-tui Roc platform.
 
 Environment overrides:
   ROC             Roc executable to run. Default: roc
@@ -103,7 +103,7 @@ run_glue() {
 }
 
 if [ "$MODE" = "check" ]; then
-    tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/basic-cli-glue.XXXXXX")"
+    tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/roc-elm-tui-glue.XXXXXX")"
     cleanup() { rm -rf "$tmp_dir"; }
     trap cleanup EXIT
 

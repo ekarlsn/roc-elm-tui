@@ -1,11 +1,11 @@
 [package]
 name = "roc_host"
-version = "0.21.0-rc4"
-authors = ["The Roc Contributors"]
+version = "0.1.0"
 edition = "2021"
 rust-version = "1.97"
 license = "UPL-1.0"
-repository = "https://github.com/roc-lang/basic-cli"
+repository = "https://github.com/ekarlsn/roc-elm-tui"
+description = "Rust host for the roc-elm-tui platform"
 
 [lib]
 name = "host"

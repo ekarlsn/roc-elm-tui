@@ -3,15 +3,13 @@
 [roc_badge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fpastebin.com%2Fraw%2FcFzuCCd7
 [roc_link]: https://github.com/roc-lang/roc
 
-# basic-cli
+# roc-elm-tui
 
-A Roc [platform](https://github.com/roc-lang/roc/wiki/Roc-concepts-explained#platform) for command-line programs.
+A Roc [platform](https://github.com/roc-lang/roc/wiki/Roc-concepts-explained#platform) for building Elm-inspired terminal user interfaces.
 
-`basic-cli` supports command execution, directories, environment variables, files, HTTP, locales, paths, random seeds, sleeping, SQLite, standard input/output/error, TCP, terminal raw mode, and UTC time.
+Applications follow the [Elm Architecture](https://guide.elm-lang.org/architecture/): define a `Model`, an `Event` type, and three functions — `init`, `update`, and `view`. The platform drives the event loop, delivering keyboard input, TCP events, and timer ticks as typed `Event` values, and rendering each `view` result to the terminal.
 
 ## Supported targets
-
-The platform builds and runs on these targets in CI:
 
 | Roc target | Operating system | Architecture |
 | --- | --- | --- |
@@ -21,60 +19,60 @@ The platform builds and runs on these targets in CI:
 | `arm64musl` | Linux (musl) | ARM64 |
 | `x64win` | Windows | x86-64 |
 
-Other targets are not currently supported. In particular, Windows support is
-x86-64 only.
+## Application structure
 
-## Host runtime behavior
+An application exposes a `Model` type, an `Event` type, and an `application` record:
 
-These current host-level limitations may affect application design:
+```roc
+app [Model, Event, application] { pf: platform "...", ... }
 
-- HTTP and HTTPS use HTTP/1 only. [Issue #455](https://github.com/roc-lang/basic-cli/issues/455)
-  tracks research into HTTP/2 support and its tradeoffs.
-- HTTPS certificates are validated against bundled WebPKI roots, not the
-  operating system trust store. A certificate trusted only through a locally
-  installed OS root will therefore be rejected. [Issue #454](https://github.com/roc-lang/basic-cli/issues/454)
-  tracks research into the appropriate trust configuration for basic-cli.
-- The timeout configured on an HTTP `Request` covers the request and response;
-  `NoTimeout` leaves it unbounded. Responses are buffered completely without a
-  configurable size limit ([issue #436](https://github.com/roc-lang/basic-cli/issues/436)),
-  and several network and TLS failures currently use a generic transport error
-  ([issue #438](https://github.com/roc-lang/basic-cli/issues/438)).
-- TCP connect, read, and write operations require a caller-configured timeout
-  covering the whole operation. A zero timeout fails immediately.
-  `Tcp.Stream.read_until!` and `read_line!` also require a maximum byte count,
-  preventing an untrusted peer from causing unbounded buffering.
-- SQLite keeps up to 16 recently used ordinary path connections open. A live
-  prepared statement keeps its connection open after cache eviction, and reused
-  paths continue sharing that live connection. The exact `:memory:` path is kept
-  open for the lifetime of its host thread, so repeated use accesses the same
-  in-memory database.
+application = { init, update, view }
+```
+
+| Function | Signature |
+| --- | --- |
+| `init` | `Context, List(Str) -> { m : Model, sub : Subscriptions(Event), effects : List(Effect) }` |
+| `update` | `Context, Model, Event -> { m : Model, sub : Subscriptions(Event), effects : List(Effect) }` |
+| `view` | `TerminalSettings, Model -> [RawMode(List(List(Terminal))), Nothing]` |
+
+Returning `Subscriptions.none` from `update` exits the application cleanly.
+
+### Subscriptions
+
+| Subscription | Description |
+| --- | --- |
+| `stdin` | Keyboard input, parsed as `ANSI.Input` |
+| `accept_tcp_connection` | TCP server: accept incoming connections on a host/port |
+| `tcp_connect` | TCP client: connect to a remote server |
+| `tcp_receive` | Receive bytes from a connected TCP stream |
+| `timer` | One-shot timer firing at a given nanosecond timestamp |
+
+### Effects
+
+| Effect | Description |
+| --- | --- |
+| `Print(Str)` | Write a string to stdout |
+| `WriteToFile({ filename, content })` | Write a string to a file |
+| `TcpSend({ stream, data })` | Send bytes over a TCP stream |
+| `Exit(U16)` | Exit the application with an exit code |
 
 ## Examples
 
-The [examples](examples/) directory contains executable, application-shaped CLI
-programs for common tasks like reading files, running commands, constructing
-URLs, making HTTP requests, working with SQLite, and reading stdin.
+The [examples](examples/) directory contains runnable apps:
 
-The examples are pinned to the [`0.21.0-rc4` release](https://github.com/roc-lang/basic-cli/releases/tag/0.21.0-rc4):
+| File | Description |
+| --- | --- |
+| `elm-example.roc` | Minimal counter — keyboard input updates a cursor-highlighted list |
+| `timer-example.roc` | Fires a timer every 5 seconds and displays the count |
+| `tcp-echo-server.roc` | TCP server that echoes received bytes back to all connected clients |
+| `tcp-client.roc` | TCP client that sends messages on keypress and displays replies |
 
-```roc
-app [main!] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.21.0-rc4/FvCh4vdqm3nBY6DWEfZ8RuGCVfjuMY43HA8KSNk9qVDn.tar.zst" }
+Build the platform first (see [CONTRIBUTING.md](CONTRIBUTING.md)), then run an example:
+
+```sh
+roc run examples/elm-example.roc
 ```
-
-To run examples from a local checkout instead, build the platform first and use `"../platform/main.roc"`; see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-HTTP examples use Roc's builtin `Json` parser and encoder directly through
-`Http.get!` and `Http.send_json!`.
-
-## Documentation
-
-- [`0.21.0-rc4` release documentation](https://roc-lang.github.io/basic-cli/0.21.0-rc4/)
-- [latest main branch](https://roc-lang.github.io/basic-cli/main/)
-
-## Help
-
-Ask questions on [Roc Zulip](https://roc.zulipchat.com), especially in the `#beginners` stream.
 
 ## Contributing
 
-Contributor setup, verification, generated glue, and documentation publishing notes live in [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, build steps, and how to regenerate Rust glue.

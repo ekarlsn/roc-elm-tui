@@ -24,7 +24,7 @@ Subscriptions(event) := {
 	tcp_receive : Try(Box((TcpStream, List(U8) -> event)), [NotSubscribed]),
 	timer : Try({ fire_at : U64, on_fire : Box(event) }, [NotSubscribed]),
 }.{
-	none : Subscriptions(a)
+	none : Subscriptions(_)
 	none = {
 		stdin: Err(NotSubscribed),
 		accept_tcp_connection: Err(NotSubscribed),
