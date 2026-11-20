@@ -36,11 +36,11 @@ while IFS= read -r release_name; do
 done <<< "$release_names"
 
 latest_stable="$(
-  gh api "repos/$repository/releases/latest" --jq .tag_name 2>/dev/null || true
+  gh api "repos/$repository/releases/latest" --jq '.tag_name // empty' 2>/dev/null || true
 )"
 
 if [ -n "$latest_stable" ]; then
-  sed "s/LATESTVERSION/$latest_stable/g" docs/index.html > "$docs_root/index.html"
+  sed "s|LATESTVERSION|$latest_stable|g" docs/index.html > "$docs_root/index.html"
 else
-  sed 's/LATESTVERSION/main/g' docs/index.html > "$docs_root/index.html"
+  sed 's|LATESTVERSION|main|g' docs/index.html > "$docs_root/index.html"
 fi
